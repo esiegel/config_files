@@ -2,11 +2,9 @@ import XMonad
 import XMonad.Config.Gnome
 import XMonad.ManageHook
 import XMonad.Layout.NoBorders
-{-import XMonad.Layout.HintedGrid-}
 import XMonad.Layout.Grid
 import XMonad.Layout.Roledex
 import XMonad.Layout.Reflect
-import XMonad.Layout.Spacing
 import XMonad.Layout.Circle
 import XMonad.Layout.PerWorkspace
 import XMonad.Layout.IM
@@ -16,9 +14,7 @@ import Data.Ratio ((%))
 
 myWorkspaces = ["1:web","2:code","3:eclipse","4:other","5:chat","6:email"]   
 
-gridLayout = spacing 8 $ Grid
-
-empathyLayout = withIM (18/100) (Role "buddy_list") gridLayout
+empathyLayout = withIM (1%7) (Role "contact_list") Grid
 
 commonLayout = avoidStruts(smartBorders(tiled)) ||| 
             noBorders(Full) ||| 
