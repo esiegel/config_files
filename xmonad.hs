@@ -6,6 +6,7 @@ import XMonad.Layout.Grid
 import XMonad.Layout.Roledex
 import XMonad.Layout.Reflect
 import XMonad.Layout.Circle
+import XMonad.Layout.Spiral
 import XMonad.Layout.PerWorkspace
 import XMonad.Layout.IM
 import XMonad.Hooks.ManageDocks
@@ -18,6 +19,7 @@ empathyLayout = withIM (1%7) (Role "contact_list") Grid
 
 commonLayout = avoidStruts(smartBorders(tiled)) ||| 
             noBorders(Full) ||| 
+            spiral (6/7) |||
             noBorders(Mirror tiled)
    where 
       tiled = Tall nmaster delta ratio
@@ -33,7 +35,7 @@ myLayoutHook = onWorkspaces ["1:web","2:code","3:eclipse","4:other","6:email"] c
 myManageHook :: [ManageHook]
 myManageHook =  
     [ className =? "vmware" --> doFloat
-	 , className =? "Empathy"--> doShift "8:chat" 
+	 , className =? "Empathy"--> doShift "5:chat" 
 	 , resource  =? "Do"     --> doIgnore 
 	]
 
@@ -43,5 +45,5 @@ main = xmonad gnomeConfig
        focusFollowsMouse = False,
        layoutHook = myLayoutHook,
        workspaces = myWorkspaces,
-	    manageHook = manageHook gnomeConfig <+> composeAll myManageHook 
+	   manageHook = manageHook gnomeConfig <+> composeAll myManageHook 
     }
