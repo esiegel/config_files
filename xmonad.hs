@@ -15,7 +15,7 @@ import Data.Ratio ((%))
 
 myWorkspaces = ["1:web","2:code","3:eclipse","4:other","5:chat","6:email"]   
 
-empathyLayout = withIM (1%7) (Role "contact_list") Grid
+chatLayout = withIM (1%7) (Role "buddy_list") Grid
 
 commonLayout = avoidStruts(smartBorders(tiled)) ||| 
             noBorders(Full) ||| 
@@ -30,20 +30,39 @@ commonLayout = avoidStruts(smartBorders(tiled)) |||
 defaultLayout = Tall 1 (1/2) (3/100)
 
 myLayoutHook = onWorkspaces ["1:web","2:code","3:eclipse","4:other","6:email"] commonLayout $
-               onWorkspace "5:chat" empathyLayout $ defaultLayout
+               onWorkspace "5:chat" chatLayout $ defaultLayout
 
 myManageHook :: [ManageHook]
 myManageHook =  
-    [ className =? "vmware" --> doFloat
-	 , className =? "Empathy"--> doShift "5:chat" 
-	 , resource  =? "Do"     --> doIgnore 
+    [ className =? "vmware"      --> doFloat
+	 , resource  =? "Do"          --> doIgnore
+	 , className =? "Eclipse"     --> doShift "3:eclipse"
+	 , title     =? "Eclipse"     --> doShift "3:eclipse"
+	 , className =? "Empathy"     --> doShift "5:chat"
+	 , className =? "Pidgin"      --> doShift "5:chat"
+	 , className =? "Mail"        --> doShift "6:email"
+	 , className =? "Thunderbird" --> doShift "6:email"
 	]
 
 main = xmonad gnomeConfig
     { 
+       {-handles java awt/swing ui-}
        startupHook = setWMName "LG3D",
+
+       {-mod1Mask - left alt key-}
+       {-mod2Mask - ?-}
+       {-mod3Mask - right alt key-}
+       {-mod4Mask - windows key-}
+       modMask = mod1Mask,
+
+       {-activating windows accidentally sucks-}
        focusFollowsMouse = False,
-       layoutHook = myLayoutHook,
+
+       {-use my named workspaces-}
        workspaces = myWorkspaces,
-	   manageHook = manageHook gnomeConfig <+> composeAll myManageHook 
+
+       {-use all my awesome layouts defined above-}
+       layoutHook = myLayoutHook,
+
+       manageHook = manageHook gnomeConfig <+> composeAll myManageHook
     }
