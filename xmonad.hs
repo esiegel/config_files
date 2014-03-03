@@ -44,25 +44,29 @@ myManageHook =
 	 , className =? "Thunderbird" --> doShift "6:email"
 	]
 
-main = xmonad gnomeConfig
-    { 
-       {-handles java awt/swing ui-}
-       startupHook = setWMName "LG3D",
+main = do
+    xmonad $ gnomeConfig
+        { 
+            {-handles java awt/swing ui-}
+            startupHook = setWMName "LG3D",
 
-       {-mod1Mask - left alt key-}
-       {-mod2Mask - ?-}
-       {-mod3Mask - right alt key-}
-       {-mod4Mask - windows key-}
-       modMask = mod1Mask,
+            {-specify terminal executable-}
+            terminal = "gnome-terminal",
 
-       {-activating windows accidentally sucks-}
-       focusFollowsMouse = False,
+            {-mod1Mask - left alt key-}
+            {-mod2Mask - ?-}
+            {-mod3Mask - right alt key-}
+            {-mod4Mask - windows key-}
+            modMask = mod1Mask,
 
-       {-use my named workspaces-}
-       workspaces = myWorkspaces,
+            {-activating windows accidentally sucks-}
+            focusFollowsMouse = False,
 
-       {-use all my awesome layouts defined above-}
-       layoutHook = myLayoutHook,
+            {-use my named workspaces-}
+            workspaces = myWorkspaces,
 
-       manageHook = manageHook gnomeConfig <+> composeAll myManageHook
-    }
+            {-use all my awesome layouts defined above-}
+            layoutHook = myLayoutHook,
+
+            manageHook = manageHook gnomeConfig <+> composeAll myManageHook
+        }
