@@ -1,6 +1,8 @@
 (defun dotspacemacs/init ()
     ; Set font
-    (spacemacs/set-font 'Monaco' 18)
+    (spacemacs/set-font "DejaVu Sans Mono" 11)
+
+    (add-to-list 'exec-path "/home/eric/.cabal/bin")
 
     ; Disable auto-complete and dependencies so that we can use company for completion
     (setq-default dotspacemacs-excluded-packages
@@ -8,10 +10,13 @@
 
     ; List of contribution to load."
     (setq dotspacemacs-configuration-layers
-       '(company-mode haskell javascript python themes-megapack eric))
+       '(company-mode haskell javascript python themes-megapack))
 
     ; Don't use slow OSX fullscreen
     (setq ns-use-native-fullscreen nil)
+
+    ; Escape with Ctrl-j.  Might cause conflict
+    ; (setq-default evil-escape-key-sequence (kbd "C-j"))
 )
 
 ; Runs after dotspacemacs is loaded.
@@ -19,15 +24,57 @@
     ; THEMES
     (load-theme 'solarized-dark' true)
 
-    ; ignore files when viewing directories.
-    ; (setq-default dired-omit-files-p t)
-    ; (setq dired-omit-files "^\\.[^.]\\|\\.pyc$\\")
-    
+    ; ctrl h,l for fast buffer changing.
+    (define-key evil-normal-state-map (kbd "C-h") 'evil-prev-buffer)
+    (define-key evil-normal-state-map (kbd "C-l") 'evil-next-buffer)
+
+    ; open up buffer list faster
+    (define-key evil-normal-state-map (kbd ",b")    'helm-buffers-list)
+    (define-key evil-normal-state-map (kbd ", RET") 'helm-semantic-or-imenu)
+
+    ; remove highlights
+    (define-key evil-normal-state-map (kbd ", SPC") 'evil-search-highlight-persist-remove-all)
+
+    ; remove highlights
+    (define-key evil-normal-state-map (kbd ",s") 'eric-show-or-create-shell)
+
+    ;;;;;; ignore buffers that start and end with *.
+    (defun eric-should-ignore-buffers (buffer)
+      (string-match-p "\\*.*\\*" buffer))
+
+    (defun eric-get-buffer-index-by-name (name)
+      (-find-index (lambda (b) (equal name (buffer-name b))) (buffer-list)))
+
+    (defun eric-get-buffer-by-name (name)
+      (let ((shell-index (eric-get-buffer-index-by-name name)))
+        (if shell-index (nth shell-index (buffer-list)) nil)))
+
+    (defun eric-show-or-create-shell ()
+      (interactive)
+      (let* ((shell-buffer (eric-get-buffer-by-name "*shell*"))
+             (shell-window (get-buffer-window shell-buffer))
+             (current-window (get-buffer-window)))
+        (cond ((not shell-buffer) (shell))
+              ((not shell-window) (set-buffer shell-buffer))
+              (t (select-window shell-window) shell-buffer))
+        ))
+
+    (defadvice next-buffer (after avoid-messages-buffer-in-next-buffer)
+      "Advice around `next-buffer' to avoid going into the *Messages* buffer."
+      (when (eric-should-ignore-buffers (buffer-name))
+        (next-buffer)))
+
+    (defadvice previous-buffer (after avoid-messages-buffer-in-previous-buffer)
+      "Advice around `previous-buffer' to avoid going into the *Messages* buffer."
+      (when (eric-should-ignore-buffers (buffer-name))
+        (previous-buffer)))
+
+    (ad-activate 'next-buffer)
+    (ad-activate 'previous-buffer)
+
     ; SNIPPETS
     (setq yas-snippet-dirs
-        '("~/.emacs.d/spacemacs/extensions/yasnippet-snippets"
-          "/Users/eric/.emacs.d/elpa/haskell-mode-20141206.1533/snippets"
-          "/Users/eric/code/yasnippet-snippets"))
+      '("~/.emacs.d/spacemacs/extensions/yasnippet-snippets"))
 
     ; COMPANY-MODE
     (setq company-idle-delay nil)   ;; only auto-complete on key binding
