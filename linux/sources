@@ -1,0 +1,12 @@
+# cinnamon UI
+ppa:gwendal-lebihan-dev/cinnamon-nightly
+
+# haskell
+ppa:hvr/ghc
+
+# google chrome
+deb http://dl.google.com/linux/chrome/deb/ stable main
+
+# nodejs
+deb https://deb.nodesource.com/node utopic main
+deb-src https://deb.nodesource.com/node utopic main
