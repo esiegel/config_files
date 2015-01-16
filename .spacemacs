@@ -1,8 +1,10 @@
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;; SPACEMACS INIT
 (defun dotspacemacs/init ()
-    ; Set font
-    (spacemacs/set-font "DejaVu Sans Mono" 11)
+    ; system specific init.  Note the spacemacs helpers system-is-mac|linux hasn't been loaded.
+    (if (string-equal system-type "darwin") (eric/init-mac))
+    (if (string-equal system-type "gnu/linux") (eric/init-linux))
 
-    (add-to-list 'exec-path "/home/eric/.cabal/bin")
+    (eric/init-haskell)
 
     ; Disable auto-complete and dependencies so that we can use company for completion
     (setq-default dotspacemacs-excluded-packages
@@ -12,12 +14,30 @@
     (setq dotspacemacs-configuration-layers
        '(company-mode haskell javascript python themes-megapack))
 
+    ; Escape with Ctrl-j.  Might cause conflict
+    ;(setq-default evil-escape-key-sequence (kbd "C-j"))
+)
+
+(defun eric/init-mac ()
+    ; Set font
+    (spacemacs/set-font "Monaco" 16)
+
     ; Don't use slow OSX fullscreen
     (setq ns-use-native-fullscreen nil)
-
-    ; Escape with Ctrl-j.  Might cause conflict
-    ; (setq-default evil-escape-key-sequence (kbd "C-j"))
 )
+
+(defun eric/init-linux ()
+    ; Set font
+    (spacemacs/set-font "DejaVu Sans Mono" 11)
+)
+
+
+(defun eric/init-haskell ()
+    ; add cabal to executable path
+    (add-to-list 'exec-path "~/.cabal/bin")
+)
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;; SPACEMACS CONFIG
 
 ; Runs after dotspacemacs is loaded.
 (defun dotspacemacs/config ()
@@ -36,22 +56,22 @@
     (define-key evil-normal-state-map (kbd ", SPC") 'evil-search-highlight-persist-remove-all)
 
     ; remove highlights
-    (define-key evil-normal-state-map (kbd ",s") 'eric-show-or-create-shell)
+    (define-key evil-normal-state-map (kbd ",s") 'eric/show-or-create-shell)
 
     ;;;;;; ignore buffers that start and end with *.
-    (defun eric-should-ignore-buffers (buffer)
+    (defun eric/should-ignore-buffers (buffer)
       (string-match-p "\\*.*\\*" buffer))
 
-    (defun eric-get-buffer-index-by-name (name)
+    (defun eric/get-buffer-index-by-name (name)
       (-find-index (lambda (b) (equal name (buffer-name b))) (buffer-list)))
 
-    (defun eric-get-buffer-by-name (name)
-      (let ((shell-index (eric-get-buffer-index-by-name name)))
+    (defun eric/get-buffer-by-name (name)
+      (let ((shell-index (eric/get-buffer-index-by-name name)))
         (if shell-index (nth shell-index (buffer-list)) nil)))
 
-    (defun eric-show-or-create-shell ()
+    (defun eric/show-or-create-shell ()
       (interactive)
-      (let* ((shell-buffer (eric-get-buffer-by-name "*shell*"))
+      (let* ((shell-buffer (eric/get-buffer-by-name "*shell*"))
              (shell-window (get-buffer-window shell-buffer))
              (current-window (get-buffer-window)))
         (cond ((not shell-buffer) (shell))
@@ -61,12 +81,12 @@
 
     (defadvice next-buffer (after avoid-messages-buffer-in-next-buffer)
       "Advice around `next-buffer' to avoid going into the *Messages* buffer."
-      (when (eric-should-ignore-buffers (buffer-name))
+      (when (eric/should-ignore-buffers (buffer-name))
         (next-buffer)))
 
     (defadvice previous-buffer (after avoid-messages-buffer-in-previous-buffer)
       "Advice around `previous-buffer' to avoid going into the *Messages* buffer."
-      (when (eric-should-ignore-buffers (buffer-name))
+      (when (eric/should-ignore-buffers (buffer-name))
         (previous-buffer)))
 
     (ad-activate 'next-buffer)
