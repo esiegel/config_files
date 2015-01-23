@@ -114,8 +114,6 @@
                  (yas/expand))
         (company-complete-common)))
 
-    (as)
-
     (defun yas/expansion-at-point ()
       (first (yas--templates-for-key-at-point)))
 
