@@ -77,6 +77,7 @@
     (eric/config-completion)
     (eric/config-flymake)
     (eric/config-markdown)
+    (eric/config-emmet)
 )
 
 (defun eric/config-variables()
@@ -182,7 +183,13 @@
 )
 
 (defun eric/config-markdown ()
+  ; use pandoc to create markdown html
   (setq markdown-command "pandoc --smart --standalone -f markdown_github -t html5")
+)
+
+(defun eric/config-emmet ()
+  (add-hook 'sgml-mode-hook 'emmet-mode) ;; Auto-start on any markup modes
+  (add-hook 'css-mode-hook  'emmet-mode) ;; enable Emmet's css abbreviation.
 )
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;; UTIL
