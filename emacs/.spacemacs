@@ -1,57 +1,82 @@
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;; SPACEMACS INIT
-(defun dotspacemacs/init ()
-    ; system specific init.  Note the spacemacs helpers system-is-mac|linux hasn't been loaded.
-    (if (string-equal system-type "darwin") (eric/init-mac))
-    (if (string-equal system-type "gnu/linux") (eric/init-linux))
+;; Configuration Layers
+;; --------------------
 
-    (eric/init-haskell)
-
-    ; Disable auto-complete and dependencies so that we can use company for completion
-    (setq-default dotspacemacs-excluded-packages
-      '(auto-complete ac-ispell tern-auto-complete auto-complete-clang enslime edts))
+(setq-default
+   ; Disable auto-complete and dependencies so that we can use company for completion
+   dotspacemacs-excluded-packages '(auto-complete
+                                    ac-ispell
+                                    auto-complete-clang
+                                    enslime
+                                    edts
+                                    tern-auto-complete)
 
     ; List of contribution to load."
-    (setq dotspacemacs-configuration-layers
-       '(company-mode haskell javascript python themes-megapack))
+    dotspacemacs-configuration-layers '(company-mode
+                                        haskell
+                                        javascript
+                                        python
+                                        themes-megapack
+                                        eric)
+)
 
-    ; Escape with Ctrl-j.  Might cause conflict
-    ;(setq-default evil-escape-key-sequence (kbd "C-j"))
+;; Spacemacs Settings
+;; Configuration for spacemacs that must run before init and config
+;; --------------------
+
+(defun eric/dotspacemacs-settings ()
+    (if (string-equal system-type "darwin")    (eric/dotspacemacs-settings-mac)) ; osx settings
+    (if (string-equal system-type "gnu/linux") (eric/dotspacemacs-settings-linux)) ; linux settings
+)
+
+(defun eric/dotspacemacs-settings-mac ()
+    (setq-default dotspacemacs-default-font '("Monaco" :size 16))
+)
+
+(defun eric/dotspacemacs-settings-linux ()
+    (setq-default dotspacemacs-default-font '("DejaVu Sans Mono" :size 11))
+)
+
+; Actual do the set the settigs.
+(eric/dotspacemacs-settings)
+
+
+;; Spacemacs Init
+;; --------------------
+
+(defun dotspacemacs/init ()
+    (if (string-equal system-type "darwin")    (eric/init-mac)) ; osx init
+    (if (string-equal system-type "gnu/linux") (eric/init-linux)) ; linux init
+
+    (eric/init-haskell)
 )
 
 (defun eric/init-mac ()
-    ; Set font
-    (spacemacs/set-font "Monaco" 16)
-
     ; Don't use slow OSX fullscreen
     (setq ns-use-native-fullscreen nil)
 )
 
 (defun eric/init-linux ()
-    ; Set font
-    (spacemacs/set-font "DejaVu Sans Mono" 11)
 )
-
 
 (defun eric/init-haskell ()
     ; add cabal to executable path
     (add-to-list 'exec-path "~/.cabal/bin")
 )
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;; SPACEMACS CONFIG
+;; Spacemacs Config
+;; --------------------
 
-; Runs after dotspacemacs is loaded.
 (defun dotspacemacs/config ()
-    (eric/load-requirements)
     (eric/config-variables)
     (eric/config-mappings)
+    (eric/config-repls)
     (eric/config-theme)
     (eric/config-buffers)
+    (eric/config-scrolling)
     (eric/config-snippets)
     (eric/config-completion)
-)
-
-(defun eric/load-requirements ()
-   (require 'smooth-scrolling)
+    (eric/config-flymake)
+    (eric/config-markdown)
 )
 
 (defun eric/config-variables()
@@ -72,6 +97,12 @@
 
     ; show shell
     (define-key evil-normal-state-map (kbd ",s") 'eric/show-or-create-shell)
+)
+
+(defun eric/config-repls()
+    ; Have the up and down arrows get previous history in shell
+    (define-key comint-mode-map (kbd "<up>") 'comint-previous-input)
+    (define-key comint-mode-map (kbd "<down>") 'comint-next-input)
 )
 
 (defun eric/config-buffers ()
@@ -99,6 +130,12 @@
     (ad-activate 'previous-buffer)
 )
 
+(defun eric/config-scrolling ()
+  ; smooth-scrolling is enabled by default
+  ; change margins to something smaller
+  (setq smooth-scroll-margin 3)
+)
+
 (defun eric/config-snippets ()
     (setq yas-snippet-dirs
       '("~/.emacs.d/spacemacs/extensions/yasnippet-snippets"))
@@ -123,10 +160,29 @@
 
     ; mappings
     (define-key evil-insert-state-map (kbd "C-M-i") 'company-complete)
+    (define-key evil-insert-state-map (kbd "TAB")   'company-yasnippet-or-completion)
     (define-key company-active-map    (kbd "TAB")   'company-yasnippet-or-completion)
     (define-key company-active-map    (kbd "<tab>") 'company-yasnippet-or-completion)
     (define-key company-active-map    "\t"          'company-yasnippet-or-completion)
-    (global-set-key [tab] 'company-yasnippet-or-completion)
+)
+
+(defun eric/config-flymake ()
+  ; E203 - whitespace before ':'
+  ; E221 - multiple spaces before operator.  Nice to lineup =.
+  ; E241 - multiple spaces after :.  Nice to lineup dicts.
+  ; E272 - multiple spaces before keyword.  Nice to lineup import.
+  ; W404 - import *, unable to detected undefined names.
+  ; W801 - redefinition of unused import, try/except import fails.
+  (setq flycheck-flake8rc "~/.flake8rc")
+  (setq flymake-python-pyflakes-extra-arguments
+        '(
+          "--ignore=E203,E221,E241,E272,W404,W801"
+          "--max-line-length=99"
+         ))
+)
+
+(defun eric/config-markdown ()
+  (setq markdown-command "pandoc --smart --standalone -f markdown_github -t html5")
 )
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;; UTIL
@@ -203,6 +259,5 @@
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- '(default ((t (:background nil))))
  '(company-tooltip-common ((t (:inherit company-tooltip :weight bold :underline nil))))
  '(company-tooltip-common-selection ((t (:inherit company-tooltip-selection :weight bold :underline nil)))))
