@@ -1,0 +1,89 @@
+ZSH=$HOME/.oh-my-zsh
+ZSH_THEME="robbyrussell"
+
+DISABLE_AUTO_UPDATE="true"
+
+# Custom plugins may be added to ~/.oh-my-zsh/custom/plugins/
+plugins=(git git-flow osx pip virtualenvwrapper zsh-syntax-highlighting)
+
+# oh-my-zsh entry
+source $ZSH/oh-my-zsh.sh
+
+########## CUSTOMIZATION
+
+export PATH=/usr/local/bin:/usr/local/sbin:/usr/bin:/bin:/usr/sbin:/sbin
+
+# Increase cmd history size
+export HISTSIZE=5000
+
+# don't ask if "this is correct"
+unsetopt correct_all
+unsetopt correct
+
+# set editor variables
+export EDITOR=$(which vim)
+export PAGER=less
+
+# Less needs to pass through escaped color characters.
+export LESS=-R
+
+CODE=$HOME/code
+DROPBOX=$HOME/Dropbox
+
+############## NODE
+
+# Add Node modules to path
+export PATH=$PATH:/usr/local/share/npm/bin
+
+############## Haskell
+
+# add haskell cabal binaries to path
+export PATH=$PATH:$HOME/.cabal/bin
+
+# cabal uninstall
+cabal-uninstall() {
+   if [[ $# -ne 1 ]]; then
+       echo cabal-uninstall: need to speicify package to uninstall
+       return 1
+   fi
+   package=$1
+   ghc-pkg unregister $package >/dev/null 2>&1
+   find ~/.cabal -type d -name "*$package*" | xargs rm -rf
+   find ~/.cabal -type f -name "*$package*" | xargs rm
+}
+
+################## GOLANG
+
+export GOPATH=$CODE/go
+export PATH=$PATH:$GOPATH/bin
+
+# Sourcetree to path
+alias stree=/Applications/SourceTree.app/Contents/Resources/stree
+
+alias emacsapp="open /usr/local/Cellar/emacs/24.4-dev/Emacs.app"
+
+# ack 2.0 doesn't support searching all files, this does.
+alias acka="ack --type-set='all:match:.*' -k"
+
+# Virtualbox vm control
+alias start_kernvm="VBoxManage startvm --type headless kernel_dev"
+alias stop_kernvm="VBoxManage controlvm kernel_dev poweroff"
+alias ssh_kernvm="ssh -p 2222 eric@127.0.0.1"
+
+# shortcuts
+alias ideas="$EDITOR $DROPBOX/ideas.md"
+alias notes="$EDITOR $DROPBOX/notes.md"
+alias questions="$EDITOR $DROPBOX/questions.md"
+alias todo="$EDITOR $DROPBOX/todo.md"
+
+# android sdk
+export ANDROID_HOME=/usr/local/opt/android-sdk
+
+# GPG default key
+export GPGKEY=ED6BE39D
+
+# swift repl
+alias swift="xcrun --sdk iphonesimulator8.0 swift"
+
+# add local scripts
+export PATH=$PATH:$CODE/scripts
