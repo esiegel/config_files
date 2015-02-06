@@ -17,8 +17,8 @@ myWorkspaces = ["1:web","2:code","3:eclipse","4:other","5:chat","6:email"]
 
 chatLayout = withIM (1%7) (Role "buddy_list") Grid
 
-commonLayout = avoidStruts(smartBorders(tiled)) ||| 
-            noBorders(Full) ||| 
+commonLayout = avoidStruts(smartBorders tiled) ||| 
+            noBorders Full ||| 
             spiral (6/7) |||
             noBorders(Mirror tiled)
    where 
@@ -30,7 +30,7 @@ commonLayout = avoidStruts(smartBorders(tiled)) |||
 defaultLayout = Tall 1 (1/2) (3/100)
 
 myLayoutHook = onWorkspaces ["1:web","2:code","3:eclipse","4:other","6:email"] commonLayout $
-               onWorkspace "5:chat" chatLayout $ defaultLayout
+               onWorkspace "5:chat" chatLayout defaultLayout
 
 myManageHook :: [ManageHook]
 myManageHook =  
@@ -44,8 +44,7 @@ myManageHook =
 	 , className =? "Thunderbird" --> doShift "6:email"
 	]
 
-main = do
-    xmonad $ gnomeConfig
+main = xmonad $ gnomeConfig
         { 
             {-handles java awt/swing ui-}
             startupHook = setWMName "LG3D",

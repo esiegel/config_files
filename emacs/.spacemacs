@@ -11,13 +11,22 @@
                                     tern-auto-complete)
 
     ; List of contribution to load."
-    dotspacemacs-configuration-layers '(company-mode
+    dotspacemacs-configuration-layers '(colors 
+                                        company-mode
+                                        git
+                                        go
                                         haskell
+                                        html
                                         javascript
                                         python
+                                        scala
                                         themes-megapack
                                         eric)
 )
+
+; OSX custom config
+(if (string-equal system-type "darwin")
+    (add-to-list 'dotspacemacs-configuration-layers 'osx))
 
 ;; Spacemacs Settings
 ;; Configuration for spacemacs that must run before init and config
@@ -47,6 +56,7 @@
     (if (string-equal system-type "darwin")    (eric/init-mac)) ; osx init
     (if (string-equal system-type "gnu/linux") (eric/init-linux)) ; linux init
 
+    (eric/init-go)
     (eric/init-haskell)
 )
 
@@ -56,6 +66,11 @@
 )
 
 (defun eric/init-linux ()
+)
+
+(defun eric/init-go ()
+    ; add GOPATH env var.
+    (setenv "GOPATH" "/Users/eric/code/go")
 )
 
 (defun eric/init-haskell ()
@@ -78,6 +93,7 @@
     (eric/config-flymake)
     (eric/config-markdown)
     (eric/config-emmet)
+    (eric/config-rainbow-identifiers)
 )
 
 (defun eric/config-variables()
@@ -192,7 +208,40 @@
   (add-hook 'css-mode-hook  'emmet-mode) ;; enable Emmet's css abbreviation.
 )
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;; UTIL
+(defun eric/config-rainbow-identifiers ()
+
+    ;; Customized filter: don't mark *all* identifiers
+    ;; http://amitp.blogspot.com/2014/09/emacs-rainbow-identifiers-customized.html
+    (defun rainbow-identifiers-filter (beg end)
+      "Only highlight standalone words or those following 'this.' or 'self.'"
+      (let ((curr-char (char-after beg))
+            (prev-char (char-before beg))
+            (prev-self (buffer-substring-no-properties
+                        (max (point-min) (- beg 5)) beg)))
+        (and (not (member curr-char 
+                        '(?0 ?1 ?2 ?3 ?4 ?5 ?6 ?7 ?8 ?9 ??)))
+             (or (not (equal prev-char ?\.))
+                 (equal prev-self "self.")
+                 (equal prev-self "this.")))))
+
+    ;; Filter: don't mark identifiers inside comments or strings
+    (setq rainbow-identifiers-faces-to-override
+          '(font-lock-type-face
+            font-lock-variable-name-face
+            font-lock-function-name-face))
+
+    ;; Set the filter
+    (add-hook 'rainbow-identifiers-filter-functions 'rainbow-identifiers-filter)
+
+    ;; Use a wider set of colors
+    (setq rainbow-identifiers-choose-face-function 'rainbow-identifiers-cie-l*a*b*-choose-face)
+    (setq rainbow-identifiers-cie-l*a*b*-lightness 45)
+    (setq rainbow-identifiers-cie-l*a*b*-saturation 45)
+)
+
+
+;; Spacemacs Util
+;; --------------------
 
 (defun eric/should-ignore-buffers (buffer)
   ; ignore buffers that start and end with *.
