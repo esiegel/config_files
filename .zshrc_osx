@@ -87,3 +87,8 @@ alias swift="xcrun --sdk iphonesimulator8.0 swift"
 
 # add local scripts
 export PATH=$PATH:$CODE/scripts
+
+# fasd init
+eval "$(fasd --init auto)"
+alias v='f -e vim' # quick opening files with vim
+alias o='a -e open' # quick opening files with open
