@@ -85,6 +85,7 @@
     (eric/config-variables)
     (eric/config-mappings)
     (eric/config-repls)
+    (eric/config-ssh)
     (eric/config-theme)
     (eric/config-buffers)
     (eric/config-scrolling)
@@ -99,6 +100,13 @@
 (defun eric/config-variables()
     ; always follow symlinks in git repos, don't ask
     (setq vc-follow-symlinks t)
+)
+
+(defun eric/config-ssh()
+    ; use ssh by default
+    (setq tramp-default-method "ssh")
+    (setq tramp-shell-prompt-pattern
+          "\\(?:^\\|\\)[^]#$%>\n]*#?[]#$%>].* *\\(\\[[0-9;]*[a-zA-Z] *\\)*")
 )
 
 (defun eric/config-theme()
@@ -174,13 +182,13 @@
     ; config
     (setq company-idle-delay nil)   ;; only auto-complete on key binding
     (setq company-tooltip-limit 20) ;; use a bigger popup window
+    (setq company-selection-wrap-around t) ;; wrap selection
 
     ; mappings
-    (define-key evil-insert-state-map (kbd "C-M-i") 'company-complete)
-    (define-key evil-insert-state-map (kbd "TAB")   'company-yasnippet-or-completion)
-    (define-key company-active-map    (kbd "TAB")   'company-yasnippet-or-completion)
-    (define-key company-active-map    (kbd "<tab>") 'company-yasnippet-or-completion)
-    (define-key company-active-map    "\t"          'company-yasnippet-or-completion)
+    (define-key evil-insert-state-map (kbd "C-M-i")     'company-complete)
+    (define-key evil-insert-state-map (kbd "<tab>")     'company-yasnippet-or-completion)
+    (define-key company-active-map    (kbd "<tab>")     'company-select-next)
+    (define-key company-active-map    (kbd "<backtab>") 'company-select-previous)
 )
 
 (defun eric/config-flymake ()
