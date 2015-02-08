@@ -175,8 +175,6 @@
     (define-key evil-insert-state-map (kbd "<tab>")     'company-yasnippet-or-completion)
     (define-key company-active-map    (kbd "<tab>")     'company-select-next)
     (define-key company-active-map    (kbd "<backtab>") 'company-select-previous)
-
-    (define-key evil-insert-state-map "\t"     'company-yasnippet-or-completion)
 )
 
 (defun eric/config-dired()
