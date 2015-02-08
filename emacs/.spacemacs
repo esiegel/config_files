@@ -1,3 +1,10 @@
+;; Helpers
+;; --------------------
+(setq _is_mac   (string-equal system-type "darwin"))
+(setq _is_linux (string-equal system-type "gnu/linux"))
+(setq _is_term  (not window-system))
+(setq _is_gui   (not _is_term))
+
 ;; Configuration Layers
 ;; --------------------
 
@@ -13,28 +20,33 @@
     ; List of contribution to load."
     dotspacemacs-configuration-layers '(colors 
                                         company-mode
+                                        fasd
                                         git
                                         go
                                         haskell
                                         html
                                         javascript
                                         python
+                                        restclient
                                         scala
                                         themes-megapack
                                         eric)
 )
 
 ; OSX custom config
-(if (string-equal system-type "darwin")
-    (add-to-list 'dotspacemacs-configuration-layers 'osx))
+(if _is_mac
+    (progn
+      (add-to-list 'dotspacemacs-configuration-layers 'dash)
+      (add-to-list 'dotspacemacs-configuration-layers 'osx))
+  )
 
 ;; Spacemacs Settings
 ;; Configuration for spacemacs that must run before init and config
 ;; --------------------
 
 (defun eric/dotspacemacs-settings ()
-    (if (string-equal system-type "darwin")    (eric/dotspacemacs-settings-mac)) ; osx settings
-    (if (string-equal system-type "gnu/linux") (eric/dotspacemacs-settings-linux)) ; linux settings
+    (if _is_mac (eric/dotspacemacs-settings-mac))
+    (if _is_linux (eric/dotspacemacs-settings-linux))
 )
 
 (defun eric/dotspacemacs-settings-mac ()
@@ -53,8 +65,8 @@
 ;; --------------------
 
 (defun dotspacemacs/init ()
-    (if (string-equal system-type "darwin")    (eric/init-mac)) ; osx init
-    (if (string-equal system-type "gnu/linux") (eric/init-linux)) ; linux init
+    (if _is_mac (eric/init-mac))
+    (if _is_linux (eric/init-linux))
 
     (eric/init-go)
     (eric/init-haskell)
@@ -163,6 +175,8 @@
     (define-key evil-insert-state-map (kbd "<tab>")     'company-yasnippet-or-completion)
     (define-key company-active-map    (kbd "<tab>")     'company-select-next)
     (define-key company-active-map    (kbd "<backtab>") 'company-select-previous)
+
+    (define-key evil-insert-state-map "\t"     'company-yasnippet-or-completion)
 )
 
 (defun eric/config-dired()
@@ -256,7 +270,9 @@
 )
 
 (defun eric/config-theme()
-    (load-theme 'solarized-dark' true)
+    (if _is_term
+        (spacemacs/load-theme 'busybee)
+        (spacemacs/load-theme 'solarized-dark))
 )
 
 ;; Spacemacs Util
@@ -336,3 +352,4 @@
  ;; If there is more than one, they won't work right.
  '(company-tooltip-common ((t (:inherit company-tooltip :weight bold :underline nil))))
  '(company-tooltip-common-selection ((t (:inherit company-tooltip-selection :weight bold :underline nil)))))
+
