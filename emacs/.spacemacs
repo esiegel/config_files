@@ -84,33 +84,24 @@
 (defun dotspacemacs/config ()
     (eric/config-variables)
     (eric/config-mappings)
-    (eric/config-repls)
-    (eric/config-ssh)
-    (eric/config-theme)
+
     (eric/config-buffers)
-    (eric/config-scrolling)
-    (eric/config-snippets)
     (eric/config-completion)
+    (eric/config-dired)
+    (eric/config-emmet)
     (eric/config-flymake)
     (eric/config-markdown)
-    (eric/config-emmet)
     (eric/config-rainbow-identifiers)
+    (eric/config-repls)
+    (eric/config-scrolling)
+    (eric/config-snippets)
+    (eric/config-ssh)
+    (eric/config-theme)
 )
 
 (defun eric/config-variables()
     ; always follow symlinks in git repos, don't ask
     (setq vc-follow-symlinks t)
-)
-
-(defun eric/config-ssh()
-    ; use ssh by default
-    (setq tramp-default-method "ssh")
-    (setq tramp-shell-prompt-pattern
-          "\\(?:^\\|\\)[^]#$%>\n]*#?[]#$%>].* *\\(\\[[0-9;]*[a-zA-Z] *\\)*")
-)
-
-(defun eric/config-theme()
-    (load-theme 'solarized-dark' true)
 )
 
 (defun eric/config-mappings()
@@ -122,12 +113,6 @@
 
     ; show shell
     (define-key evil-normal-state-map (kbd ",s") 'eric/show-or-create-shell)
-)
-
-(defun eric/config-repls()
-    ; Have the up and down arrows get previous history in shell
-    (define-key comint-mode-map (kbd "<up>") 'comint-previous-input)
-    (define-key comint-mode-map (kbd "<down>") 'comint-next-input)
 )
 
 (defun eric/config-buffers ()
@@ -155,17 +140,6 @@
     (ad-activate 'previous-buffer)
 )
 
-(defun eric/config-scrolling ()
-  ; smooth-scrolling is enabled by default
-  ; change margins to something smaller
-  (setq smooth-scroll-margin 3)
-)
-
-(defun eric/config-snippets ()
-    (setq yas-snippet-dirs
-      '("~/.emacs.d/spacemacs/extensions/yasnippet-snippets"))
-)
-
 (defun eric/config-completion ()
     ; snippet or completion expansion
     (defun company-yasnippet-or-completion ()
@@ -191,6 +165,21 @@
     (define-key company-active-map    (kbd "<backtab>") 'company-select-previous)
 )
 
+(defun eric/config-dired()
+    ; omit unintersting files in directory mode
+    (setq dired-omit-mode t)
+
+    ; change uninteresting regexp match.  I like seeing the ".." directory.
+    ; see also dired-omit-extensions
+    (setq dired-omit-files "^\\.?#\\|^\\.$")
+)
+
+(defun eric/config-emmet ()
+  (add-hook 'sgml-mode-hook 'emmet-mode) ;; Auto-start on any markup modes
+  (add-hook 'css-mode-hook  'emmet-mode) ;; enable Emmet's css abbreviation.
+  (setq emmet-preview-default t)         ;; show preview by default
+)
+
 (defun eric/config-flymake ()
   ; E203 - whitespace before ':'
   ; E221 - multiple spaces before operator.  Nice to lineup =.
@@ -209,11 +198,6 @@
 (defun eric/config-markdown ()
   ; use pandoc to create markdown html
   (setq markdown-command "pandoc --smart --standalone -f markdown_github -t html5")
-)
-
-(defun eric/config-emmet ()
-  (add-hook 'sgml-mode-hook 'emmet-mode) ;; Auto-start on any markup modes
-  (add-hook 'css-mode-hook  'emmet-mode) ;; enable Emmet's css abbreviation.
 )
 
 (defun eric/config-rainbow-identifiers ()
@@ -247,6 +231,33 @@
     (setq rainbow-identifiers-cie-l*a*b*-saturation 45)
 )
 
+(defun eric/config-repls()
+    ; Have the up and down arrows get previous history in shell
+    (define-key comint-mode-map (kbd "<up>") 'comint-previous-input)
+    (define-key comint-mode-map (kbd "<down>") 'comint-next-input)
+)
+
+(defun eric/config-scrolling ()
+  ; smooth-scrolling is enabled by default
+  ; change margins to something smaller
+  (setq smooth-scroll-margin 3)
+)
+
+(defun eric/config-snippets ()
+    (setq yas-snippet-dirs
+      '("~/.emacs.d/spacemacs/extensions/yasnippet-snippets"))
+)
+
+(defun eric/config-ssh()
+    ; use ssh by default
+    (setq tramp-default-method "ssh")
+    (setq tramp-shell-prompt-pattern
+          "\\(?:^\\|\\)[^]#$%>\n]*#?[]#$%>].* *\\(\\[[0-9;]*[a-zA-Z] *\\)*")
+)
+
+(defun eric/config-theme()
+    (load-theme 'solarized-dark' true)
+)
 
 ;; Spacemacs Util
 ;; --------------------
