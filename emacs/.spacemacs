@@ -1,9 +1,9 @@
 ;; Helpers
 ;; --------------------
-(setq _is_mac   (string-equal system-type "darwin"))
-(setq _is_linux (string-equal system-type "gnu/linux"))
-(setq _is_term  (not window-system))
-(setq _is_gui   (not _is_term))
+(defvar-local _is_mac   (string-equal system-type "darwin"))
+(defvar-local _is_linux (string-equal system-type "gnu/linux"))
+(defvar-local _is_term  (not window-system))
+(defvar-local _is_gui   (not _is_term))
 
 ;; Configuration Layers
 ;; --------------------
@@ -269,7 +269,7 @@
 
 (defun eric/config-theme()
     (if _is_term
-        (spacemacs/load-theme 'busybee)
+        (spacemacs/load-theme 'monokai)
         (spacemacs/load-theme 'solarized-dark))
 )
 
