@@ -258,6 +258,9 @@
 (defun eric/config-snippets ()
     (setq yas-snippet-dirs
       '("~/.emacs.d/spacemacs/extensions/yasnippet-snippets"))
+
+    ; use the html-mode when in web-mode
+    (add-hook 'web-mode-hook #'(lambda () (yas-activate-extra-mode 'html-mode)))
 )
 
 (defun eric/config-ssh()
