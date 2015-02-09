@@ -296,7 +296,7 @@
          (shell-window (get-buffer-window shell-buffer))
          (current-window (get-buffer-window)))
     (cond ((not shell-buffer) (shell))
-          ((not shell-window) (set-buffer shell-buffer))
+          ((not shell-window) (set-window-buffer nil shell-buffer))
           (t (select-window shell-window) shell-buffer))
   ))
 
