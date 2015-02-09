@@ -117,6 +117,9 @@
 )
 
 (defun eric/config-mappings()
+    ; fullscreen
+    (define-key evil-normal-state-map (kbd "<s-return>") 'spacemacs/toggle-frame-fullscreen)
+
     ; show functions and variables
     (define-key evil-normal-state-map (kbd ", RET") 'helm-semantic-or-imenu)
 
@@ -133,7 +136,7 @@
     (define-key evil-normal-state-map (kbd "C-l") 'evil-next-buffer)
 
     ; open up buffer list faster
-    (define-key evil-normal-state-map (kbd ",b")    'helm-buffers-list)
+    (define-key evil-normal-state-map (kbd ",b")  'helm-buffers-list)
     
     ; next-buffer should skip all *BUFFERS*
     (defadvice next-buffer (after avoid-messages-buffer-in-next-buffer)
