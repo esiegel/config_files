@@ -28,6 +28,7 @@
                                         javascript
                                         python
                                         restclient
+                                        ruby 
                                         scala
                                         themes-megapack
                                         eric)
@@ -70,6 +71,7 @@
 
     (eric/init-go)
     (eric/init-haskell)
+    (eric/init-ruby)
 )
 
 (defun eric/init-mac ()
@@ -90,6 +92,11 @@
     (add-to-list 'exec-path "~/.cabal/bin")
 )
 
+(defun eric/init-ruby ()
+    (setq-default ruby-version-manager 'rbenv)
+    (setq-default ruby-enable-ruby-on-rails-support t)
+)
+
 ;; Spacemacs Config
 ;; --------------------
 
@@ -103,9 +110,11 @@
     (eric/config-emmet)
     (eric/config-flymake)
     (eric/config-markdown)
+    (eric/config-org-mode)
     (eric/config-rainbow-identifiers)
     (eric/config-repls)
     (eric/config-scrolling)
+    (eric/config-searching)
     (eric/config-snippets)
     (eric/config-ssh)
     (eric/config-theme)
@@ -215,6 +224,19 @@
   (setq markdown-command "pandoc --smart --standalone -f markdown_github -t html5")
 )
 
+(defun eric/config-org-mode ()
+  (setq org-startup-indented t)
+  (setq org-hide-leading-stars nil)
+  (setq org-fontify-done-headline nil)
+  (setq org-fontify-emphasized-text nil)
+  (setq org-fontify-entities nil)
+  (setq org-fontify-like-in-org-mode nil)
+  (setq org-fontify-meta-lines-and-blocks nil)
+  (setq org-fontify-meta-lines-and-blocks-1 nil)
+  (setq org-fontify-quote-and-verse-blocks nil)
+  (setq org-fontify-whole-heading-line nil)
+)
+
 (defun eric/config-rainbow-identifiers ()
 
     ;; Customized filter: don't mark *all* identifiers
@@ -256,6 +278,12 @@
   ; smooth-scrolling is enabled by default
   ; change margins to something smaller
   (setq smooth-scroll-margin 3)
+)
+
+(defun eric/config-searching ()
+  ; TODO, ag-arguements hasn't loaded yet.
+  ; search all file types
+  ;(add-to-list 'ag-arguments "-a")
 )
 
 (defun eric/config-snippets ()

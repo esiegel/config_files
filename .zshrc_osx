@@ -28,7 +28,17 @@ export PAGER=less
 export LESS=-R
 
 CODE=$HOME/code
-DROPBOX=$HOME/Dropbox
+
+if [[ -d $HOME/Dropbox ]]; then
+   DROPBOX=$HOME/Dropbox
+elif [[ -d "$HOME/Dropbox (Personal)" ]]; then
+   DROPBOX="$HOME/Dropbox (Personal)"
+fi
+
+# load custom source
+if [[ -f $HOME/.zshrc-custom ]]; then
+   source $HOME/.zshrc-custom
+fi
 
 ############## NODE
 
@@ -71,10 +81,11 @@ alias stop_kernvm="VBoxManage controlvm kernel_dev poweroff"
 alias ssh_kernvm="ssh -p 2222 eric@127.0.0.1"
 
 # shortcuts
-alias ideas="$EDITOR $DROPBOX/ideas.md"
-alias notes="$EDITOR $DROPBOX/notes.md"
-alias questions="$EDITOR $DROPBOX/questions.md"
-alias todo="$EDITOR $DROPBOX/todo.md"
+# note: dropbox can contain spaces so we must wrap it in quotes
+alias ideas="$EDITOR \"$DROPBOX/ideas.md\""
+alias notes="$EDITOR \"$DROPBOX/notes.md\""
+alias questions="$EDITOR \"$DROPBOX/questions.md\""
+alias todo="$EDITOR \"$DROPBOX/todo.md\""
 
 # android sdk
 export ANDROID_HOME=/usr/local/opt/android-sdk
@@ -92,3 +103,14 @@ export PATH=$PATH:$CODE/scripts
 eval "$(fasd --init auto)"
 alias v='f -e vim' # quick opening files with vim
 alias o='a -e open' # quick opening files with open
+
+# ruby env home
+export RBENV_ROOT=/usr/local/var/rbenv
+alias bundleinstall="bundle install --path .gems"
+
+# To enable shims and autocompletion add to your profile:
+if which rbenv > /dev/null; then eval "$(rbenv init -)"; fi
+
+# arcanist code review
+export PATH=$PATH:$CODE/arcanist/bin
+source $CODE/arcanist/resources/shell/bash-completion
