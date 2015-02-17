@@ -67,6 +67,12 @@ cabal-uninstall() {
 export GOPATH=$CODE/go
 export PATH=$PATH:$GOPATH/bin
 
+################## Node
+
+export PATH=$PATH:$CODE/tern/bin
+
+################## Other
+
 # Sourcetree to path
 alias stree=/Applications/SourceTree.app/Contents/Resources/stree
 
@@ -114,3 +120,6 @@ if which rbenv > /dev/null; then eval "$(rbenv init -)"; fi
 # arcanist code review
 export PATH=$PATH:$CODE/arcanist/bin
 source $CODE/arcanist/resources/shell/bash-completion
+
+# include scripts
+export PATH=$PATH:$CODE/scripts

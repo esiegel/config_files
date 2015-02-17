@@ -71,6 +71,7 @@
 
     (eric/init-go)
     (eric/init-haskell)
+    (eric/init-node)
     (eric/init-ruby)
 )
 
@@ -90,6 +91,11 @@
 (defun eric/init-haskell ()
     ; add cabal to executable path
     (add-to-list 'exec-path "~/.cabal/bin")
+)
+
+(defun eric/init-node ()
+    ; add tern to the path
+    (add-to-list 'exec-path "~/code/tern/bin")
 )
 
 (defun eric/init-ruby ()
@@ -162,13 +168,15 @@
     ; activate our advice
     (ad-activate 'next-buffer)
     (ad-activate 'previous-buffer)
+
+    ; emulate vim's splitright behavior.
+    (setq evil-vsplit-window-right t)
 )
 
 (defun eric/config-completion ()
     ; snippet or completion expansion
     (defun company-yasnippet-or-completion ()
       (interactive)
-      (print "doing stuff")
       (if (yas/expansion-at-point)
           (progn (company-abort)
                  (yas/expand))
@@ -304,7 +312,7 @@
 (defun eric/config-theme()
     (if _is_term
         (spacemacs/load-theme 'monokai)
-        (spacemacs/load-theme 'solarized-dark))
+        (spacemacs/load-theme 'ample-zen))
 )
 
 ;; Spacemacs Util
