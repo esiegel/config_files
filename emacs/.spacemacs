@@ -115,7 +115,9 @@
     (eric/config-dired)
     (eric/config-emmet)
     (eric/config-flymake)
+    (eric/config-git)
     (eric/config-markdown)
+    (eric/config-neotree)
     (eric/config-org-mode)
     (eric/config-rainbow-identifiers)
     (eric/config-repls)
@@ -227,9 +229,18 @@
          ))
 )
 
+(defun eric/config-git ()
+  (setq git-enable-github-support)
+)
+
 (defun eric/config-markdown ()
   ; use pandoc to create markdown html
   (setq markdown-command "pandoc --smart --standalone -f markdown_github -t html5")
+)
+
+(defun eric/config-neotree ()
+  ; allow closing neotree with ':q' when only one other window
+  (setq neo-dont-be-alone nil)
 )
 
 (defun eric/config-org-mode ()
