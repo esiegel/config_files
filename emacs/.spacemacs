@@ -18,17 +18,19 @@
                                     tern-auto-complete)
 
     ; List of contribution to load."
-    dotspacemacs-configuration-layers '(colors 
+    dotspacemacs-configuration-layers '(colors
                                         company-mode
                                         fasd
+                                        floobits
                                         git
                                         go
                                         haskell
                                         html
                                         javascript
+                                        markdown
                                         python
                                         restclient
-                                        ruby 
+                                        ruby
                                         scala
                                         themes-megapack
                                         eric)
@@ -119,8 +121,10 @@
     (eric/config-markdown)
     (eric/config-neotree)
     (eric/config-org-mode)
+    (eric/config-projectile-mode)
     (eric/config-rainbow-identifiers)
     (eric/config-repls)
+    (eric/config-ruby)
     (eric/config-scrolling)
     (eric/config-searching)
     (eric/config-snippets)
@@ -256,6 +260,14 @@
   (setq org-fontify-whole-heading-line nil)
 )
 
+(defun eric/config-projectile-mode ()
+  ; use helm for projectile completions
+  (setq projectile-completion-system 'helm-comp-read)
+
+  ; projectile considers current directory as root
+  (setq projectile-require-project-root nil)
+)
+
 (defun eric/config-rainbow-identifiers ()
 
     ;; Customized filter: don't mark *all* identifiers
@@ -293,6 +305,12 @@
     (define-key comint-mode-map (kbd "<down>") 'comint-next-input)
 )
 
+(defun eric/config-ruby ()
+  ;; ruby mode, and extended ruby mode no magic encoding comment
+  (setq ruby-insert-encoding-magic-comment nil)
+  (setq enh-ruby-add-encoding-comment-on-save nil)
+)
+
 (defun eric/config-scrolling ()
   ; smooth-scrolling is enabled by default
   ; change margins to something smaller
@@ -322,7 +340,7 @@
 
 (defun eric/config-theme()
     (if _is_term
-        (spacemacs/load-theme 'monokai)
+        (spacemacs/load-theme 'ample-zen)
         (spacemacs/load-theme 'ample-zen))
 )
 

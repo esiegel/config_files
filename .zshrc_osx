@@ -91,6 +91,7 @@ alias ssh_kernvm="ssh -p 2222 eric@127.0.0.1"
 alias ideas="$EDITOR \"$DROPBOX/ideas.md\""
 alias notes="$EDITOR \"$DROPBOX/notes.md\""
 alias questions="$EDITOR \"$DROPBOX/questions.md\""
+alias scratch="$EDITOR \"$DROPBOX/scratch.md\""
 alias todo="$EDITOR \"$DROPBOX/todo.md\""
 
 # android sdk
@@ -123,3 +124,59 @@ source $CODE/arcanist/resources/shell/bash-completion
 
 # include scripts
 export PATH=$PATH:$CODE/scripts
+
+exit_if_failure() {
+  exit_code=$?
+  msg=${1:-BAD_EXIT_CODE}
+
+  if [[ $exit_code != 0 ]]; then
+    echo $msg
+    exit $exit_code
+  fi
+}
+
+# destroys and recreates web test_db
+recreate_testdb() {
+  dropdb transcriptic_test
+  if [[ $? == 0 ]]; then
+    createdb transcriptic_test
+  fi
+  if [[ $? == 0 ]]; then
+    cat ~/code/web/db/structure.sql | psql transcriptic_test > /dev/null
+  fi
+  if [[ $? == 0 ]]; then
+    echo "Test DB recreated"
+  else
+    echo "Test DB FAIL"
+  fi
+}
+
+find_tests() {
+  searchterm=$1
+  alltests=$(ag --ruby "^.*test.* \"(.*)\".*do" test | egrep $searchterm)
+  for test in $alltests; do
+    echo $test
+  done
+}
+
+run_tests() {
+  searchterm=$1
+  tests=("${(@f)$(find_tests $searchterm)}")
+
+  for t in $tests; do
+    local file=$(echo $t | cut -d' ' -f1 | cut -d ':' -f1)
+    local testname=$(echo $t | cut -d'"' -f2 | sed 's/ /_/g')
+    local cmd="bundle exec ruby -I test $file -n test_$testname"
+
+    echo "TEST: $file $testname\n"
+    eval $cmd
+  done
+}
+
+# find recent files committed
+recent_changes() {
+  local start_revision=${1:-HEAD^}
+  local end_revision="HEAD" 
+  git diff-tree --name-only -r "${start_revision}..${end_revision}"
+}
+alias modified_files="git ls-files -m -o -X .gitignore -X ~/.gitignore"
