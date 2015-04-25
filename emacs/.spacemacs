@@ -19,7 +19,7 @@
 
     ; List of contribution to load."
     dotspacemacs-configuration-layers '(colors
-                                        company-mode
+                                        auto-completion
                                         fasd
                                         floobits
                                         git
@@ -32,6 +32,7 @@
                                         restclient
                                         ruby
                                         scala
+                                        syntax-checking
                                         themes-megapack
                                         eric)
 )
@@ -113,7 +114,7 @@
     (eric/config-mappings)
 
     (eric/config-buffers)
-    (eric/config-completion)
+    ;(eric/config-completion)
     (eric/config-dired)
     (eric/config-emmet)
     (eric/config-flymake)
@@ -261,6 +262,10 @@
 )
 
 (defun eric/config-projectile-mode ()
+  ; load projectile mode
+  ;; (if (not (bound-and-true-p projectile-mode))
+  ;;   (projectile-mode))
+
   ; use helm for projectile completions
   (setq projectile-completion-system 'helm-comp-read)
 
