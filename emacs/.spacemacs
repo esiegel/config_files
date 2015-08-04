@@ -9,17 +9,14 @@
 ;; --------------------
 
 (setq-default
-   ; Disable auto-complete and dependencies so that we can use company for completion
-   dotspacemacs-excluded-packages '(auto-complete
-                                    ac-ispell
-                                    auto-complete-clang
-                                    enslime
-                                    edts
-                                    tern-auto-complete)
+    ; Disable auto-complete and dependencies so that we can use company for completion
+    dotspacemacs-excluded-packages '()
 
     ; List of contribution to load."
     dotspacemacs-configuration-layers '(colors
                                         auto-completion
+                                        clojure
+                                        emacs-lisp
                                         fasd
                                         floobits
                                         git
@@ -32,9 +29,9 @@
                                         restclient
                                         ruby
                                         scala
+                                        shell
                                         syntax-checking
-                                        themes-megapack
-                                        eric)
+                                        themes-megapack)
 )
 
 ; OSX custom config
@@ -114,7 +111,7 @@
     (eric/config-mappings)
 
     (eric/config-buffers)
-    ;(eric/config-completion)
+    (eric/config-completion)
     (eric/config-dired)
     (eric/config-emmet)
     (eric/config-flymake)
@@ -181,27 +178,10 @@
 )
 
 (defun eric/config-completion ()
-    ; snippet or completion expansion
-    (defun company-yasnippet-or-completion ()
-      (interactive)
-      (if (yas/expansion-at-point)
-          (progn (company-abort)
-                 (yas/expand))
-        (company-complete-common)))
-
-    (defun yas/expansion-at-point ()
-      (first (yas--templates-for-key-at-point)))
-
-    ; config
-    (setq company-idle-delay nil)   ;; only auto-complete on key binding
-    (setq company-tooltip-limit 20) ;; use a bigger popup window
+    (setq company-idle-delay nil)          ;; only auto-complete on key binding
+    (setq company-tooltip-limit 20)        ;; use a bigger popup window
     (setq company-selection-wrap-around t) ;; wrap selection
-
-    ; mappings
-    (define-key evil-insert-state-map (kbd "C-M-i")     'company-complete)
-    (define-key evil-insert-state-map (kbd "<tab>")     'company-yasnippet-or-completion)
-    (define-key company-active-map    (kbd "<tab>")     'company-select-next)
-    (define-key company-active-map    (kbd "<backtab>") 'company-select-previous)
+    (setq ac-auto-start nil)               ;; only auto-complete on key binding
 )
 
 (defun eric/config-dired()
@@ -246,6 +226,7 @@
 (defun eric/config-neotree ()
   ; allow closing neotree with ':q' when only one other window
   (setq neo-dont-be-alone nil)
+  (setq git-gutter-use-fringe nil)
 )
 
 (defun eric/config-org-mode ()

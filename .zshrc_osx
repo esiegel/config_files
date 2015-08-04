@@ -13,6 +13,11 @@ source $ZSH/oh-my-zsh.sh
 
 export PATH=/usr/local/bin:/usr/local/sbin:/usr/bin:/bin:/usr/sbin:/sbin
 
+# Direnv hook for loading directory environments
+# Setting an empty log format prevents logging.
+eval "$(direnv hook zsh)"
+export DIRENV_LOG_FORMAT=""
+
 # Increase cmd history size
 export HISTSIZE=5000
 
@@ -39,6 +44,11 @@ fi
 if [[ -f $HOME/.zshrc-custom ]]; then
    source $HOME/.zshrc-custom
 fi
+
+# load all files in .zsh_files
+for file in ~/.zsh_files/*(DN); do
+  source "$file"
+done
 
 ############## NODE
 
@@ -135,48 +145,25 @@ exit_if_failure() {
   fi
 }
 
-# destroys and recreates web test_db
-recreate_testdb() {
-  dropdb transcriptic_test
-  if [[ $? == 0 ]]; then
-    createdb transcriptic_test
-  fi
-  if [[ $? == 0 ]]; then
-    cat ~/code/web/db/structure.sql | psql transcriptic_test > /dev/null
-  fi
-  if [[ $? == 0 ]]; then
-    echo "Test DB recreated"
-  else
-    echo "Test DB FAIL"
-  fi
-}
-
-find_tests() {
-  searchterm=$1
-  alltests=$(ag --ruby "^.*test.* \"(.*)\".*do" test | egrep $searchterm)
-  for test in $alltests; do
-    echo $test
-  done
-}
-
-run_tests() {
-  searchterm=$1
-  tests=("${(@f)$(find_tests $searchterm)}")
-
-  for t in $tests; do
-    local file=$(echo $t | cut -d' ' -f1 | cut -d ':' -f1)
-    local testname=$(echo $t | cut -d'"' -f2 | sed 's/ /_/g')
-    local cmd="bundle exec ruby -I test $file -n test_$testname"
-
-    echo "TEST: $file $testname\n"
-    eval $cmd
-  done
-}
-
 # find recent files committed
 recent_changes() {
   local start_revision=${1:-HEAD^}
   local end_revision="HEAD" 
   git diff-tree --name-only -r "${start_revision}..${end_revision}"
+  git ls-files --others --exclude-standard
 }
 alias modified_files="git ls-files -m -o -X .gitignore -X ~/.gitignore"
+
+backup_branch() {
+  backup_revision_start=${1:-HEAD^}
+  local branch_name=$(git rev-parse --abbrev-ref HEAD)
+  local now=$(date +'%Y%m%d_%H%M%s')
+  local backup_dir="/Users/eric/Dropbox (Transcriptic)/backup/${branch_name}/${branch_name}_${now}"
+  local files_path=${backup_dir}/_files.txt
+
+  mkdir -p $backup_dir
+  recent_changes $backup_revision_start > $files_path
+  modified_files >> $files_path
+  sort -u -o $files_path $files_path
+  rsync -a --files-from=$files_path . $backup_dir
+}
