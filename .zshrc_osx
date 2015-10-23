@@ -1,15 +1,17 @@
+############## OH_MY_ZSH INIT
+
 ZSH=$HOME/.oh-my-zsh
 ZSH_THEME="robbyrussell"
 
 DISABLE_AUTO_UPDATE="true"
 
 # Custom plugins may be added to ~/.oh-my-zsh/custom/plugins/
-plugins=(git git-flow osx pip virtualenvwrapper zsh-syntax-highlighting)
+plugins=(git git-extras git-flow osx pip virtualenvwrapper zsh-syntax-highlighting)
 
 # oh-my-zsh entry
 source $ZSH/oh-my-zsh.sh
 
-########## CUSTOMIZATION
+############## ZSH CONFIG
 
 export PATH=/usr/local/bin:/usr/local/sbin:/usr/bin:/bin:/usr/sbin:/sbin
 
@@ -49,6 +51,11 @@ fi
 for file in ~/.zsh_files/*(DN); do
   source "$file"
 done
+
+# allow CTRL-x-e to edit the command line in $EDITOR
+autoload edit-command-line
+zle -N edit-command-line
+bindkey '^Xe' edit-command-line
 
 ############## NODE
 
@@ -145,25 +152,65 @@ exit_if_failure() {
   fi
 }
 
+############## GIT HELPERS
+
+# modified files
+alias modified_files="git ls-files -m -o -X .gitignore -X ~/.gitignore"
+
 # find recent files committed
 recent_changes() {
   local start_revision=${1:-HEAD^}
-  local end_revision="HEAD" 
+  local end_revision=${2:-HEAD}
   git diff-tree --name-only -r "${start_revision}..${end_revision}"
   git ls-files --others --exclude-standard
 }
-alias modified_files="git ls-files -m -o -X .gitignore -X ~/.gitignore"
+
 
 backup_branch() {
-  backup_revision_start=${1:-HEAD^}
+  #CODE_BACKUP_DIR must be defined
+
+  local start_revision=${1:-HEAD^}
+  local end_revision=${2:-HEAD}
+  local repo_name=$(basename $(git rev-parse --show-toplevel))
   local branch_name=$(git rev-parse --abbrev-ref HEAD)
   local now=$(date +'%Y%m%d_%H%M%s')
-  local backup_dir="/Users/eric/Dropbox (Transcriptic)/backup/${branch_name}/${branch_name}_${now}"
+  local backup_dir="${CODE_BACKUP_DIR}/${repo_name}/${branch_name}/${branch_name}_${now}"
   local files_path=${backup_dir}/_files.txt
 
   mkdir -p $backup_dir
-  recent_changes $backup_revision_start > $files_path
+  recent_changes $start_revision $end_revision > $files_path
   modified_files >> $files_path
   sort -u -o $files_path $files_path
   rsync -a --files-from=$files_path . $backup_dir
+}
+
+num_lines_changed() {
+  local start_revision=${1:-HEAD^}
+  local end_revision=${2:-HEAD}
+  git diff --stat $start_revision $end_revision | grep '|' | egrep -v "Bin \d+ -> \d+ bytes" | tr -s ' ' | cut -d'|' -f 2 | cut -d ' ' -f 2 | paste -sd+ - | bc
+}
+
+############## AWS HELPERS
+
+ec2_instances() {
+  # Fetches EC2 instance info.
+  #
+  # {
+  #   "i-9e1dfa63": {
+  #     "dns": "ec2-54-175-236-111.compute-1.amazonaws.com",
+  #     "name": "logstash-02"
+  #   },
+  #   "i-9f1dfa62": {
+  #     "dns": "ec2-54-175-242-4.compute-1.amazonaws.com",
+  #     "name": "logstash-02"
+  #   }
+  # }
+
+  local cmd='aws ec2 describe-instances --filters "Name=instance-state-name,Values=running"'
+  local jqcmd="jq --sort-keys '.Reservations | map(.Instances) | flatten | map({key: .InstanceId, value: {name: .Tags[0].Value, dns: .PublicDnsName}}) | from_entries'"
+  if [[ -n $1 ]]; then
+    cmd="$cmd --filters 'Name=tag:Name,Values=*$1*'"
+  fi
+
+  eval $cmd | eval $jqcmd
 }
