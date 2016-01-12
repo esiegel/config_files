@@ -181,7 +181,7 @@ backup_branch() {
   recent_changes $start_revision $end_revision > $files_path
   modified_files >> $files_path
   sort -u -o $files_path $files_path
-  rsync -a --files-from=$files_path . $backup_dir
+  rsync -a --ignore-missing-args --files-from=$files_path . $backup_dir
 }
 
 num_lines_changed() {
@@ -207,7 +207,7 @@ ec2_instances() {
   # }
 
   local cmd='aws ec2 describe-instances --filters "Name=instance-state-name,Values=running"'
-  local jqcmd="jq --sort-keys '.Reservations | map(.Instances) | flatten | map({key: .InstanceId, value: {name: .Tags[0].Value, dns: .PublicDnsName}}) | from_entries'"
+  local jqcmd="jq --sort-keys '.Reservations | map(.Instances) | flatten | map({key: .InstanceId, value: {name: .Tags[0].Value, dns: .PublicDnsName, private_ip: .PrivateIpAddress, public_ip: .PublicIpAddress}}) | from_entries'"
   if [[ -n $1 ]]; then
     cmd="$cmd --filters 'Name=tag:Name,Values=*$1*'"
   fi
