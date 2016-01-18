@@ -136,8 +136,10 @@ alias bundleinstall="bundle install --path .gems"
 if which rbenv > /dev/null; then eval "$(rbenv init -)"; fi
 
 # arcanist code review
-export PATH=$PATH:$CODE/arcanist/bin
-source $CODE/arcanist/resources/shell/bash-completion
+if [[ -d $CODE/arcanist/bin ]]; then
+   export PATH=$PATH:$CODE/arcanist/bin
+   source $CODE/arcanist/resources/shell/bash-completion
+fi
 
 # include scripts
 export PATH=$PATH:$CODE/scripts
