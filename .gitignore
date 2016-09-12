@@ -23,3 +23,8 @@ Temporary Items
 
 # ruby gems
 .gems/
+
+# rake tasks cache (oh-my-zsh rake-fast plugin).
+.rake_tasks
+
+.envrc

@@ -6,7 +6,7 @@ ZSH_THEME="robbyrussell"
 DISABLE_AUTO_UPDATE="true"
 
 # Custom plugins may be added to ~/.oh-my-zsh/custom/plugins/
-plugins=(git git-extras git-flow osx pip virtualenvwrapper zsh-syntax-highlighting)
+plugins=(git git-extras git-flow osx pip virtualenvwrapper zsh-syntax-highlighting rake-fast)
 
 # oh-my-zsh entry
 source $ZSH/oh-my-zsh.sh
@@ -88,6 +88,40 @@ export PATH=$PATH:$GOPATH/bin
 
 export PATH=$PATH:$CODE/tern/bin
 
+################# tmux
+
+pair_program() {
+  local session_name='pair'
+  local tmux_socket='/tmp/tmux.socket'
+  local client_count=$(tmux -S /tmp/tmux.socket list-clients | grep tty | wc -l | tr -d '[[:space:]]')
+
+  if [[ $client_count == 0 ]]; then
+    # cleanup code to remove socket as it will be stale and tmux gets confused.
+    rm $tmux_socket
+  fi
+
+  if [[ ! -S $tmux_socket ]]; then
+    # create a session through the socket in tmp, but do not attach
+    tmux -S $tmux_socket new -s $session_name -d
+  fi
+
+  local socket_group=$(stat -f '%Sg' /tmp/tmux.socket)
+
+  if [[ $socket_group != 'tmux' ]]; then
+    # change the group so multiple users can connect
+    chgrp tmux $tmux_socket
+    chmod g+ws $tmux_socket
+  fi
+
+  # attach to session
+  tmux -S $tmux_socket attach -t $session_name
+}
+
+################## Docker
+docker_eval() {
+  eval "$(docker-machine env default)"
+}
+
 ################## Other
 
 # Sourcetree to path
@@ -135,6 +169,13 @@ alias bundleinstall="bundle install --path .gems"
 # To enable shims and autocompletion add to your profile:
 if which rbenv > /dev/null; then eval "$(rbenv init -)"; fi
 
+coffeeweb() {
+  local startup_file=~/Desktop/snippets/web_repl_init.coffee
+  local npath="${HOME}/code/web/app/client:${HOME}/code/web/app/assets/javascripts:${HOME}/code/web/vendor/components"
+
+  NODE_PATH=$npath nesh -c -e $startup_file
+}
+
 # arcanist code review
 if [[ -d $CODE/arcanist/bin ]]; then
    export PATH=$PATH:$CODE/arcanist/bin
@@ -161,7 +202,8 @@ alias modified_files="git ls-files -m -o -X .gitignore -X ~/.gitignore"
 
 # find recent files committed
 recent_changes() {
-  local start_revision=${1:-HEAD^}
+  local default_start_revision=$(git ancestor)
+  local start_revision=${1:-$default_start_revision}
   local end_revision=${2:-HEAD}
   git diff-tree --name-only -r "${start_revision}..${end_revision}"
   git ls-files --others --exclude-standard
@@ -171,8 +213,6 @@ recent_changes() {
 backup_branch() {
   #CODE_BACKUP_DIR must be defined
 
-  local start_revision=${1:-HEAD^}
-  local end_revision=${2:-HEAD}
   local repo_name=$(basename $(git rev-parse --show-toplevel))
   local branch_name=$(git rev-parse --abbrev-ref HEAD)
   local now=$(date +'%Y%m%d_%H%M%s')
@@ -180,16 +220,37 @@ backup_branch() {
   local files_path=${backup_dir}/_files.txt
 
   mkdir -p $backup_dir
-  recent_changes $start_revision $end_revision > $files_path
+
+  local default_start_revision=$(git ancestor)
+  local start_revision=${1:-$default_start_revision}
+  local end_revision=${2:-$branch_name}
+
+  # add revision numbers
+  echo "START: $start_revision: $(git rev-parse $start_revision)" >> $files_path
+  echo "END: $end_revision: $(git rev-parse $end_revision)" >> $files_path
+  echo "--------------------------------------------------" >> $files_path
+
+  # add changed files
+  recent_changes $start_revision $end_revision >> $files_path
   modified_files >> $files_path
   sort -u -o $files_path $files_path
+
+  # copy modified files
   rsync -a --ignore-missing-args --files-from=$files_path . $backup_dir
+
+  # create git bundle backup.
+  git bundle create "$backup_dir/backup.bundle" "$start_revision..$end_revision"
 }
 
 num_lines_changed() {
-  local start_revision=${1:-HEAD^}
+  local default_start_revision=$(git ancestor)
+  local start_revision=${1:-$default_start_revision}
   local end_revision=${2:-HEAD}
-  git diff --stat $start_revision $end_revision | grep '|' | egrep -v "Bin \d+ -> \d+ bytes" | tr -s ' ' | cut -d'|' -f 2 | cut -d ' ' -f 2 | paste -sd+ - | bc
+  local add_sub_str=$(git diff --numstat $start_revision $end_revision | squeeze | cut -d' ' -f 1,2)
+  local add_total=$(echo $add_sub_str | cut -d' ' -f 1 | paste -sd+ - | bc)
+  local rm_total=$(echo $add_sub_str | cut -d' ' -f 2 | paste -sd+ - | bc)
+
+  echo "ADDED: $add_total REMOVED: $rm_total"
 }
 
 ############## AWS HELPERS

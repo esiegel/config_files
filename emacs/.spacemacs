@@ -16,6 +16,7 @@
     dotspacemacs-configuration-layers '(eric
                                         colors
                                         auto-completion
+                                        c-c++
                                         clojure
                                         emacs-lisp
                                         fasd
@@ -31,8 +32,11 @@
                                         ruby
                                         scala
                                         shell
+                                        sql
                                         syntax-checking
                                         themes-megapack)
+
+    dotspacemacs-additional-packages '(kite)
 )
 
 ; OSX custom config
@@ -56,7 +60,10 @@
     (set-face-attribute 'default nil :family "Monaco")
     (set-face-attribute 'default nil :height 165)
 
-    (setq-default dotspacemacs-default-font '("Monaco" :size 16))
+    (setq-default dotspacemacs-default-font '("Monaco" :size 14))
+
+    ; disable fullscreen animation
+    (setq ns-use-native-fullscreen nil)
 )
 
 (defun eric/dotspacemacs-settings-linux ()
@@ -85,6 +92,7 @@
 (defun eric/init-mac ()
     ; Don't use slow OSX fullscreen
     (setq ns-use-native-fullscreen nil)
+    (setq ns-use-fullscreen-animation nil)
 )
 
 (defun eric/init-linux ()
@@ -128,7 +136,9 @@
     (eric/config-variables)
     (eric/config-mappings)
 
+    (eric/config-evil)
     (eric/config-buffers)
+    (eric/config-c-c++)
     (eric/config-completion)
     (eric/config-dired)
     (eric/config-emmet)
@@ -167,6 +177,10 @@
     (define-key evil-normal-state-map (kbd ",s") 'eric/show-or-create-shell)
 )
 
+(defun eric/config-evil()
+  (setq evil-search-wrap nil) ;; don't wrap search
+)
+
 (defun eric/config-buffers ()
     ; ctrl h,l for fast buffer changing.
     (define-key evil-normal-state-map (kbd "C-h") 'evil-prev-buffer)
@@ -195,11 +209,16 @@
     (setq evil-vsplit-window-right t)
 )
 
+(defun eric/config-c-c++ ()
+  (setq c-c++-enable-clang-support t)
+)
+
 (defun eric/config-completion ()
-    (setq company-idle-delay nil)          ;; only auto-complete on key binding
-    (setq company-tooltip-limit 20)        ;; use a bigger popup window
-    (setq company-selection-wrap-around t) ;; wrap selection
-    (setq ac-auto-start nil)               ;; only auto-complete on key binding
+    (setq company-idle-delay nil)                     ;; only auto-complete on key binding
+    (setq company-tooltip-limit 20)                   ;; use a bigger popup window
+    (setq company-selection-wrap-around t)            ;; wrap selection
+    (setq ac-auto-start nil)                          ;; only auto-complete on key binding
+    (setq auto-completion-enable-snippets-in-popup t) ;; snippets in popups
 )
 
 (defun eric/config-dired()
@@ -230,10 +249,18 @@
           "--ignore=E203,E221,E241,E272,W404,W801"
           "--max-line-length=99"
          ))
+
+  ; set error list format so that ID is not trunctated
+  (setq flycheck-error-list-format
+        [("Line" 4 flycheck-error-list-entry-< :right-align t)
+         ("Col" 3 nil :right-align t)
+         ("Level" 8 flycheck-error-list-entry-level-<)
+         ("ID" 20 t)
+         ("Message (Checker)" 0 t)])
 )
 
 (defun eric/config-git ()
-  (setq git-enable-github-support)
+  (setq git-enable-github-support t)
 )
 
 (defun eric/config-markdown ()
@@ -381,7 +408,7 @@
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- '(ac-ispell-requires 4 t)
+ '(ac-ispell-requires 4)
  '(ahs-case-fold-search nil t)
  '(ahs-default-range (quote ahs-range-whole-buffer) t)
  '(ahs-idle-interval 0.25 t)
@@ -392,7 +419,7 @@
     ("fc5fcb6f1f1c1bc01305694c59a1a861b008c534cae8d0e48e4d5e81ad718bc6" "97a2b10275e3e5c67f46ddaac0ec7969aeb35068c03ec4157cf4887c401e74b1" default)))
  '(package-selected-packages
    (quote
-    (eshell-z monokai-theme request xterm-color grizzl orgit badwolf-theme highlight go-mode multiple-cursors diminish bind-map rvm hl-todo chruby tern popup rubocop rspec-mode help-fns+ async kite skewer-mode persp-mode farmhouse-theme evil-indent-plus auto-complete f magit-popup with-editor evil-magit jss ws-butler lorem-ipsum ace-jump-helm-line hydra inf-ruby restart-emacs clojure-mode ghc sbt-mode haskell-mode helm-core osx-trash jbeans-theme helm-flx helm-company evil-mc auto-compile avy anzu smartparens projectile yasnippet json-reformat zonokai-theme zenburn-theme zen-and-art-theme window-numbering web-mode web-beautify volatile-highlights vi-tilde-fringe underwater-theme ujelly-theme twilight-theme twilight-bright-theme twilight-anti-bright-theme tronesque-theme toxi-theme tao-theme tangotango-theme tango-plus-theme tango-2-theme tagedit sunny-day-theme sublime-themes subatomic256-theme subatomic-theme stekene-theme spray spaceline spacegray-theme soothe-theme soft-stone-theme soft-morning-theme soft-charcoal-theme smyx-theme smooth-scrolling smeargle slim-mode shm shell-pop seti-theme scss-mode sass-mode ruby-tools ruby-test-mode robe reverse-theme reveal-in-osx-finder restclient rbenv rainbow-mode rainbow-identifiers rainbow-delimiters pyvenv pytest pyenv-mode purple-haze-theme professional-theme popwin planet-theme pip-requirements phoenix-dark-pink-theme phoenix-dark-mono-theme pcre2el pbcopy pastels-on-dark-theme paradox page-break-lines organic-green-theme open-junk-file oldlace-theme occidental-theme obsidian-theme noflet noctilux-theme niflheim-theme neotree naquadah-theme mustang-theme multi-term move-text monochrome-theme molokai-theme moe-theme mmm-mode minimal-theme material-theme markdown-toc markdown-mode magit-gitflow magit macrostep lush-theme linum-relative light-soap-theme leuven-theme less-css-mode launchctl json-mode js2-refactor js2-mode js-doc jazz-theme jade-mode ir-black-theme inkpot-theme info+ indent-guide ido-vertical-mode hy-mode hungry-delete hindent highlight-parentheses highlight-numbers highlight-indentation heroku-theme hemisu-theme helm-themes helm-swoop helm-pydoc helm-projectile helm-mode-manager helm-make helm-gitignore helm-descbinds helm-dash helm-css-scss helm-c-yasnippet helm-ag helm hc-zenburn-theme haskell-snippets haml-mode gruvbox-theme gruber-darker-theme grandshell-theme gotham-theme google-translate golden-ratio go-eldoc gitignore-mode gitconfig-mode gitattributes-mode git-timemachine git-messenger git-commit gh-md gandalf-theme flycheck-pos-tip flycheck-haskell flycheck flx-ido floobits flatui-theme flatland-theme firebelly-theme fill-column-indicator fasd fancy-battery expand-region exec-path-from-shell evil-visualstar evil-tutor evil-surround evil-search-highlight-persist evil-numbers evil-nerd-commenter evil-matchit evil-lisp-state evil-jumper evil-indent-textobject evil-iedit-state evil-exchange evil-escape evil-args evil-anzu espresso-theme eshell-prompt-extras esh-help ensime enh-ruby-mode emmet-mode elisp-slime-nav django-theme define-word dash-at-point darktooth-theme darkmine-theme darkburn-theme dakrone-theme cython-mode cyberpunk-theme company-web company-tern company-statistics company-quickhelp company-go company-ghc company-cabal company-anaconda company colorsarenice-theme color-theme-sanityinc-tomorrow color-theme-sanityinc-solarized coffee-mode cmm-mode clues-theme clj-refactor clean-aindent-mode cider-eval-sexp-fu cider cherry-blossom-theme busybee-theme bundler buffer-move bubbleberry-theme birds-of-paradise-plus-theme auto-yasnippet auto-highlight-symbol auto-dictionary apropospriate-theme anti-zenburn-theme anaconda-mode ample-zen-theme ample-theme align-cljlet alect-themes aggressive-indent afternoon-theme adaptive-wrap ace-window ace-link ac-ispell evil-leader evil which-key quelpa package-build use-package bind-key spacemacs-theme s dash)))
+    (simple-httpd osx-dictionary py-isort dumb-jump org yapfify evil-unimpaired git-link intero company-ghci dash-functional hlint-refactor darkokai-theme color-identifiers-mode scala-mode scala-mode2 iedit toc-org py-yapf org-plus-contrib org-bullets evil-visual-mark-mode paredit ob-http eyebrowse column-enforce-mode web-completion-data clojure-snippets powerline rake railscasts-theme disaster company-c-headers cmake-mode clang-format uuidgen omtose-phellack-theme majapahit-theme zone-nyan nyan-prompt nyan-mode sql-indent spinner packed pythonic link-hint live-py-mode dracula-theme 2048-game websocket livid-mode evil-ediff helm-hoogle bracketed-paste eshell-z monokai-theme request xterm-color grizzl orgit badwolf-theme highlight go-mode multiple-cursors diminish bind-map rvm hl-todo chruby tern popup rubocop rspec-mode help-fns+ async kite skewer-mode persp-mode farmhouse-theme evil-indent-plus auto-complete f magit-popup with-editor evil-magit jss ws-butler lorem-ipsum ace-jump-helm-line hydra inf-ruby restart-emacs clojure-mode ghc sbt-mode haskell-mode helm-core osx-trash jbeans-theme helm-flx helm-company evil-mc auto-compile avy anzu smartparens projectile yasnippet json-reformat zonokai-theme zenburn-theme zen-and-art-theme window-numbering web-mode web-beautify volatile-highlights vi-tilde-fringe underwater-theme ujelly-theme twilight-theme twilight-bright-theme twilight-anti-bright-theme tronesque-theme toxi-theme tao-theme tangotango-theme tango-plus-theme tango-2-theme tagedit sunny-day-theme sublime-themes subatomic256-theme subatomic-theme stekene-theme spray spaceline spacegray-theme soothe-theme soft-stone-theme soft-morning-theme soft-charcoal-theme smyx-theme smooth-scrolling smeargle slim-mode shm shell-pop seti-theme scss-mode sass-mode ruby-tools ruby-test-mode robe reverse-theme reveal-in-osx-finder restclient rbenv rainbow-mode rainbow-identifiers rainbow-delimiters pyvenv pytest pyenv-mode purple-haze-theme professional-theme popwin planet-theme pip-requirements phoenix-dark-pink-theme phoenix-dark-mono-theme pcre2el pbcopy pastels-on-dark-theme paradox page-break-lines organic-green-theme open-junk-file oldlace-theme occidental-theme obsidian-theme noflet noctilux-theme niflheim-theme neotree naquadah-theme mustang-theme multi-term move-text monochrome-theme molokai-theme moe-theme mmm-mode minimal-theme material-theme markdown-toc markdown-mode magit-gitflow magit macrostep lush-theme linum-relative light-soap-theme leuven-theme less-css-mode launchctl json-mode js2-refactor js2-mode js-doc jazz-theme jade-mode ir-black-theme inkpot-theme info+ indent-guide ido-vertical-mode hy-mode hungry-delete hindent highlight-parentheses highlight-numbers highlight-indentation heroku-theme hemisu-theme helm-themes helm-swoop helm-pydoc helm-projectile helm-mode-manager helm-make helm-gitignore helm-descbinds helm-dash helm-css-scss helm-c-yasnippet helm-ag helm hc-zenburn-theme haskell-snippets haml-mode gruvbox-theme gruber-darker-theme grandshell-theme gotham-theme google-translate golden-ratio go-eldoc gitignore-mode gitconfig-mode gitattributes-mode git-timemachine git-messenger git-commit gh-md gandalf-theme flycheck-pos-tip flycheck-haskell flycheck flx-ido floobits flatui-theme flatland-theme firebelly-theme fill-column-indicator fasd fancy-battery expand-region exec-path-from-shell evil-visualstar evil-tutor evil-surround evil-search-highlight-persist evil-numbers evil-nerd-commenter evil-matchit evil-lisp-state evil-jumper evil-indent-textobject evil-iedit-state evil-exchange evil-escape evil-args evil-anzu espresso-theme eshell-prompt-extras esh-help ensime enh-ruby-mode emmet-mode elisp-slime-nav django-theme define-word dash-at-point darktooth-theme darkmine-theme darkburn-theme dakrone-theme cython-mode cyberpunk-theme company-web company-tern company-statistics company-quickhelp company-go company-ghc company-cabal company-anaconda company colorsarenice-theme color-theme-sanityinc-tomorrow color-theme-sanityinc-solarized coffee-mode cmm-mode clues-theme clj-refactor clean-aindent-mode cider-eval-sexp-fu cider cherry-blossom-theme busybee-theme bundler buffer-move bubbleberry-theme birds-of-paradise-plus-theme auto-yasnippet auto-highlight-symbol auto-dictionary apropospriate-theme anti-zenburn-theme anaconda-mode ample-zen-theme ample-theme align-cljlet alect-themes aggressive-indent afternoon-theme adaptive-wrap ace-window ace-link ac-ispell evil-leader evil which-key quelpa package-build use-package bind-key spacemacs-theme s dash)))
  '(paradox-github-token t)
  '(ring-bell-function (quote ignore))
  '(truncate-lines t))
@@ -401,6 +428,4 @@
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- '(default ((t (:background nil))))
- '(company-tooltip-common ((t (:inherit company-tooltip :weight bold :underline nil))))
- '(company-tooltip-common-selection ((t (:inherit company-tooltip-selection :weight bold :underline nil)))))
+ '(default ((t (:background nil)))))
