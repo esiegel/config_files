@@ -1,0 +1,170 @@
+###### METRICS #####
+
+Metrics/AbcSize:
+  # how complicated is the function
+  Enabled: false
+
+Metrics/BlockNesting:
+  Max: 4
+
+Metrics/ClassLength:
+  Enabled: false
+
+Metrics/CyclomaticComplexity:
+  Enabled: false
+
+Metrics/LineLength:
+  # number of columns
+  Max: 124
+
+Metrics/ModuleLength:
+  Max: 1000
+  Enabled: false
+
+Metrics/MethodLength:
+  Enabled: false
+
+Metrics/ParameterLists:
+  Enabled: false
+
+Metrics/PerceivedComplexity:
+  Enabled: false
+
+###### STYLE #####
+
+Style/AndOr:
+  Enabled: false
+
+Style/AccessorMethodName:
+  Enabled: false
+
+Style/BlockDelimiters:
+  Enabled: true
+  EnforcedStyle: braces_for_chaining
+
+Style/BracesAroundHashParameters:
+  Enabled: false
+
+Style/ClassCheck:
+  # 'Enforces consistent use of `Object#is_a?` or `Object#kind_of?`.'
+  Enabled: false
+
+Style/DoubleNegation:
+  # useful for finding the truthiness of value
+  # 'Checks for uses of double negation (!!).'
+  Enabled: false
+
+Style/Documentation:
+  # don't require documentation
+  Enabled: false
+
+Style/EmptyElse:
+  # Nice to explicitly return nil in the else clause
+  Enabled: false
+  
+Style/EmptyLinesAroundBlockBody:
+  # Sometimes leaving space can make complicated blocks easier to focus on.
+  Enabled: false
+
+Style/EmptyLinesAroundClassBody:
+  # Sometimes leaving space can make complicated classes easier to focus on.
+  Enabled: false
+
+Style/EmptyLinesAroundMethodBody:
+  # Sometimes leaving space can make complicated methods easier to focus on.
+  Enabled: false
+
+Style/GlobalVars:
+  Enabled: true
+  AllowedVariables: ['$xero', '$node']
+
+Style/GuardClause:
+  # Not always cleaner
+  #
+  # # no guard
+  # if location.save
+  #   return [location, []]
+  # else
+  #   return [nil, location.errors]
+  # end
+  #
+  # vs
+  #
+  # # guard
+  # return [nil, location.errors] if location.save
+  # [location, []]
+  Enabled: false
+
+Style/HashSyntax:
+  Enabled: false
+
+Style/IfUnlessModifier:
+  # single line expressions can become unwieldy and look better in mulitple lines.
+  #
+  # if some_really_long_expression
+  #   some_equally_long_single_line_body
+  # end
+  #
+  # would look bad in one line.
+  Enabled: false
+
+Style/IndentHash:
+  Enabled: true
+  EnforcedStyle: consistent
+
+Style/MethodCallParentheses:
+  # allow calling methods with zero params as `method()`
+  Enabled: false
+  
+Style/MutableConstant:
+  # Freeze mutable objects assigned to constants
+  Enabled: false
+
+Style/NegatedIf:
+  # Favor unless over if for negative conditions
+  Enabled: false
+
+Style/Not:
+  # Use ! instead of not
+  Enabled: false
+
+Style/NumericPredicate:
+  # value == 0 vs value.zero?
+  # enforce the first.
+  EnforcedStyle: comparison
+
+Style/PredicateName:
+  # predicate? vs is_predicate?
+  # allow either
+  Enabled: false
+
+Style/RedundantSelf:
+  # makes things clearer sometimes
+  Enabled: false
+
+Style/RedundantReturn:
+  # makes things clearer sometimes
+  Enabled: false
+
+Style/SingleLineBlockParams:
+  # name variables (a, e) for reduce and inject
+  Enabled: false
+
+Style/SpaceInsideHashLiteralBraces:
+  # allow space or no space in { a: 1 }, {a: 1}
+  Enabled: false
+
+Style/StringLiterals:
+  # allow single or double quotes for string literals
+  Enabled: false
+
+Style/WordArray:
+  # disallow %w(a b c) shorthand
+  Enabled: true
+  EnforcedStyle: brackets
+
+###### LINT #####
+
+Lint/ParenthesesAsGroupedExpression:
+  # allow extra parentheses around expressions.
+  Enabled: false
