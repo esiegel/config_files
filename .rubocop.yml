@@ -14,8 +14,7 @@ Metrics/CyclomaticComplexity:
   Enabled: false
 
 Metrics/LineLength:
-  # number of columns
-  Max: 124
+  Max: 120
 
 Metrics/ModuleLength:
   Max: 1000
@@ -49,11 +48,6 @@ Style/ClassCheck:
   # 'Enforces consistent use of `Object#is_a?` or `Object#kind_of?`.'
   Enabled: false
 
-Style/DoubleNegation:
-  # useful for finding the truthiness of value
-  # 'Checks for uses of double negation (!!).'
-  Enabled: false
-
 Style/Documentation:
   # don't require documentation
   Enabled: false
@@ -61,7 +55,7 @@ Style/Documentation:
 Style/EmptyElse:
   # Nice to explicitly return nil in the else clause
   Enabled: false
-  
+
 Style/EmptyLinesAroundBlockBody:
   # Sometimes leaving space can make complicated blocks easier to focus on.
   Enabled: false
@@ -115,7 +109,11 @@ Style/IndentHash:
 Style/MethodCallParentheses:
   # allow calling methods with zero params as `method()`
   Enabled: false
-  
+
+Style/ModuleFunction:
+  # We use extend self in some cases.
+  Enabled: false
+
 Style/MutableConstant:
   # Freeze mutable objects assigned to constants
   Enabled: false
@@ -138,12 +136,20 @@ Style/PredicateName:
   # allow either
   Enabled: false
 
+Style/RaiseArgs:
+  # raise Exception, msg
+  # raise Exception.new(msg)
+  Enabled: false
+
 Style/RedundantSelf:
   # makes things clearer sometimes
   Enabled: false
 
 Style/RedundantReturn:
   # makes things clearer sometimes
+  Enabled: false
+
+Style/RegexpLiteral:
   Enabled: false
 
 Style/SingleLineBlockParams:
