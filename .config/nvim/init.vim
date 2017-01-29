@@ -16,3 +16,10 @@ xnoremap <Leader>ts :TREPLSendFile
 
 let g:neoterm_position = 'vertical'
 let g:neoterm_autoinsert = 1
+
+"""""""""""""""""""""""""NEOMAKE"""""""""""""""""""""""""""""""
+autocmd! BufWritePost * Neomake
+
+let g:neomake_javascript_enabled_makers = ['eslint']
+let g:neomake_ruby_enabled_makers = ['rubocop']
+let g:neomake_coffeescript_enabled_makers = ['coffeelint']

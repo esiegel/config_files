@@ -1,3 +1,6 @@
+;; -*- mode: emacs-lisp -*-
+
+
 ;; Helpers
 ;; --------------------
 (defvar-local _is_mac   (string-equal system-type "darwin"))
@@ -5,130 +8,233 @@
 (defvar-local _is_term  (not window-system))
 (defvar-local _is_gui   (not _is_term))
 
-;; Configuration Layers
+;; Spacemacs config
 ;; --------------------
 
-(setq-default
-    ; Disable auto-complete and dependencies so that we can use company for completion
-    dotspacemacs-excluded-packages '()
+(defun dotspacemacs/layers ()
+  "Configuration Layers declaration.
+You should not put any user code in this function besides modifying the variable
+values."
+  (setq-default
 
-    ; List of contribution to load."
-    dotspacemacs-configuration-layers '(eric
-                                        command-log
-                                        colors
-                                        auto-completion
-                                        c-c++
-                                        clojure
-                                        elm
-                                        emacs-lisp
-                                        fasd
-                                        floobits
-                                        git
-                                        go
-                                        haskell
-                                        html
-                                        javascript
-                                        markdown
-                                        osx
-                                        python
-                                        ranger
-                                        react
-                                        restclient
-                                        ruby
-                                        ruby-on-rails
-                                        scala
-                                        shell
-                                        sql
-                                        syntax-checking
-                                        themes-megapack
-                                        typescript
-                                        vimscript)
+   dotspacemacs-distribution 'spacemacs
 
-    dotspacemacs-additional-packages '(kite)
-)
+   ;; Ask to lazy install packages that aren't explicitly defined.
+   dotspacemacs-enable-lazy-installation 'unused
+   dotspacemacs-ask-for-lazy-installation t
 
-; OSX custom config
-(if _is_mac
-    (progn
-      (add-to-list 'dotspacemacs-configuration-layers 'dash)
-      (add-to-list 'dotspacemacs-configuration-layers 'osx))
-  )
+   ;; If non-nil layers with lazy install support are lazy installed.
+   ;; List of additional paths where to look for configuration layers.
+   ;; Paths must have a trailing slash (i.e. `~/.mycontribs/')
+   dotspacemacs-configuration-layer-path '()
 
-;; Spacemacs Settings
-;; Configuration for spacemacs that must run before init and config
-;; --------------------
+   dotspacemacs-configuration-layers
+   '(
+     (auto-completion :variables
+                      auto-completion-enable-help-tooltip t
+                      auto-completion-enable-snippets-in-popup t)
+     better-defaults
+     c-c++
+     clojure
+     colors
+     command-log
+     elm
+     emacs-lisp
+     fasd
+     floobits
+     (git :variables
+          git-magit-status-fullscreen t
+          git-enable-github-support t
+          git-gutter-use-fringe t)
+     (go :variables
+         go-tab-width 2
+         go-use-gometalinter t)
+     haskell
+     helm
+     html
+     imenu-list
+     javascript
+     markdown
+     osx
+     python
+     ranger
+     react
+     restclient
+     ruby
+     ruby-on-rails
+     rust
+     rusteric
+     (scala :variables
+            scala-enable-eldoc nil
+            )
+     search-engine
+     (shell :variables
+            shell-default-height 30
+            shell-default-shell 'eshell
+            shell-default-term-shell "/bin/zsh"
+            shell-default-position 'bottom
+            )
+     spell-checking
+     sql
+     (syntax-checking :variables
+                      syntax-checking-enable-tooltips t)
+     themes-megapack
+     typescript
+     version-control
+     vimscript
+     )
 
-(defun eric/dotspacemacs-settings ()
-    (if _is_mac (eric/dotspacemacs-settings-mac))
-    (if _is_linux (eric/dotspacemacs-settings-linux))
-)
+   ;; List of additional packages that will be installed without being
+   dotspacemacs-additional-packages '(kite)
 
-(defun eric/dotspacemacs-settings-mac ()
-    ; font size not respected on osx
-    (set-face-attribute 'default nil :family "Monaco")
-    (set-face-attribute 'default nil :height 165)
+   ;; A list of packages that cannot be updated.
+   dotspacemacs-frozen-packages '()
 
-    (setq-default dotspacemacs-default-font '("Monaco" :size 14))
+   ;; A list of packages that will not be installed and loaded.
+   dotspacemacs-excluded-packages '()
 
-    ; disable fullscreen animation
-    (setq ns-use-native-fullscreen nil)
-    (setq ns-use-fullscreen-animation nil)
-)
+   ;; installs only explicitly used packages and uninstall any unused
+   dotspacemacs-install-packages 'used-only))
 
-(defun eric/dotspacemacs-settings-linux ()
-    (setq-default dotspacemacs-default-font '("DejaVu Sans Mono" :size 11))
-)
+(defun dotspacemacs/init ()
+  "Called at the very startup of Spacemacs initialization before layers configuration."
 
-; Actual do the set the settigs.
-(eric/dotspacemacs-settings)
+  (setq-default
+   ;; no banner logo at startup
+   dotspacemacs-startup-banner nil
 
+   ;; configure startup buffer lists
+   dotspacemacs-startup-lists '((recents . 5)
+                                (projects . 7)
+                                (bookmarks . 5)
+                                (todos . 5))
 
-;; Spacemacs Init
+   ;; The leader key accessible in `emacs state' and `insert state'
+   dotspacemacs-emacs-leader-key "M-m"
+
+   ;; Major mode leader key shortcut, same as `<leader> m`.
+   dotspacemacs-major-mode-leader-key ","
+
+   ;; Major mode leader key accessible in `emacs state' and `insert state'.
+   dotspacemacs-major-mode-emacs-leader-key "C-M-m"
+
+   ;; If non-nil `Y' is remapped to `y$' in Evil states. (default nil)
+   dotspacemacs-remap-Y-to-y$ t
+
+   ;; Size (in MB) above which spacemacs will prompt to open the large file
+   ;; literally to avoid performance issues. Opening a file literally means that
+   ;; no major mode or minor modes are active. (default is 1)
+   dotspacemacs-large-file-size 10
+
+   ;; Which-key delay in seconds. The which-key buffer is the popup listing
+   ;; the commands bound to the current keystroke sequence. (default 0.4)
+   dotspacemacs-which-key-delay 0.4
+
+   ;; If non-nil `spacemacs/toggle-fullscreen' will not use native fullscreen.
+   ;; Use to disable fullscreen animations in OSX. (default nil)
+   dotspacemacs-fullscreen-use-non-native t
+
+   ;; transparency of frame
+   dotspacemacs-active-transparency 100
+   dotspacemacs-inactive-transparency 100
+
+   ;; If non-nil line numbers are turned on in all `prog-mode' and `text-mode'
+   ;; derivatives. If set to `relative', also turns on relative line numbers.
+   dotspacemacs-line-numbers nil
+
+   ;; Code folding method. Possible values are `evil' and `origami'.
+   dotspacemacs-folding-method 'evil
+   ))
+
+;; Spacemacs Init (before layers load)
 ;; --------------------
 
 (defun dotspacemacs/user-init ()
-    (if _is_mac (eric/init-mac))
-    (if _is_linux (eric/init-linux))
+  "Initialization function for user code. It is called immediately after `dotspacemacs/init'."
 
-    (eric/init-eric)
-    (eric/init-go)
-    (eric/init-haskell)
-    (eric/init-node)
-    (eric/init-ruby)
-    (eric/init-scala)
-)
+  (if _is_mac (eric/init-mac))
+  (if _is_linux (eric/init-linux))
 
-(defun eric/init-mac ()
-    ; Don't use slow OSX fullscreen
-    (setq ns-use-native-fullscreen nil)
-    (setq ns-use-fullscreen-animation nil)
-)
+  ;; disable loading shell variables.  Need to move zshrc to .zshenv for exports.
+  (setq exec-path-from-shell-check-startup-files nil)
 
-(defun eric/init-linux ()
-)
+  (eric/init-go)
+  (eric/init-haskell)
+  (eric/init-node)
+  (eric/init-ruby)
+  (eric/init-scala))
 
-(defun eric/init-eric ()
-)
+;; Spacemacs Config (after layers load)
+;; --------------------
+
+(defun dotspacemacs/user-config ()
+  "This function is called at the very end of Spacemacs initialization layers configuration."
+  (eric/config-variables)
+  (eric/config-mappings)
+
+  (if _is_mac (eric/config-mac))
+  (if _is_linux (eric/config-linux))
+
+  (eric/config-evil)
+  (eric/config-buffers)
+  (eric/config-c-c++)
+  (eric/config-completion)
+  (eric/config-dired)
+  (eric/config-emmet)
+  (eric/config-flymake)
+  (eric/config-git)
+  (eric/config-markdown)
+  (eric/config-neotree)
+  (eric/config-org-mode)
+  (eric/config-projectile-mode)
+  (eric/config-rainbow-identifiers)
+  (eric/config-react)
+  (eric/config-repls)
+  (eric/config-ruby)
+  (eric/config-scala)
+  (eric/config-scrolling)
+  (eric/config-searching)
+  (eric/config-snippets)
+  (eric/config-ssh)
+  (eric/config-theme))
+
+;; User Init
+;; --------------------
+
+(defun eric/init-mac()
+  ; add additional packages
+  (add-to-list 'dotspacemacs-configuration-layers 'dash)
+  (add-to-list 'dotspacemacs-configuration-layers 'osx)
+
+  ; font size not respected on osx
+  (set-face-attribute 'default nil :family "Monaco")
+  (set-face-attribute 'default nil :height 165)
+
+   dotspacemacs-default-font '("Monaco"
+                               :size 16
+                               :weight normal
+                               :width normal
+                               :powerline-scale 1.1)
+
+  ; disable fullscreen animation
+  (setq ns-use-native-fullscreen nil)
+  (setq ns-use-fullscreen-animation nil))
 
 (defun eric/init-go ()
-    ; add GOPATH env var.
-    (setenv "GOPATH" "/Users/eric/code/go")
-)
+  ; add GOPATH env var.
+  (setenv "GOPATH" "/Users/eric/code/go"))
 
 (defun eric/init-haskell ()
-    ; add cabal to executable path
-    (add-to-list 'exec-path "~/.cabal/bin")
-)
+  ; add cabal to executable path
+  (add-to-list 'exec-path "~/.cabal/bin"))
 
 (defun eric/init-node ()
-    ; add tern to the path
-    (add-to-list 'exec-path "~/code/tern/bin")
-)
+  ; add tern to the path
+  (add-to-list 'exec-path "~/code/tern/bin"))
 
 (defun eric/init-ruby ()
-    (setq-default ruby-version-manager 'rbenv)
-    (setq-default ruby-enable-ruby-on-rails-support t)
-)
+  (setq-default ruby-version-manager 'rbenv)
+  (setq-default ruby-enable-ruby-on-rails-support t))
 
 (defun eric/init-scala ()
   (setq-default flycheck-scala-executable "/usr/local/bin/scalastyle")
@@ -136,45 +242,24 @@
 
   ; ensime
   (setq-default ensime-sem-high-enabled-p nil) ; Don't add highlighting on save
-)
 
-;; Spacemacs Config
+  ; make ensime use stable version
+  (push '("melpa-stable" . "stable.melpa.org/packages/") configuration-layer--elpa-archives)
+  (push '(ensime . "melpa-stable") package-pinned-packages))
+
+(defun eric/init-linux ()
+   dotspacemacs-default-font '("DejaVu Sans Mono"
+                               :size 13
+                               :weight normal
+                               :width normal
+                               :powerline-scale 1.1))
+
+;; User Config
 ;; --------------------
-
-(defun dotspacemacs/user-config ()
-    (eric/config-variables)
-    (eric/config-mappings)
-
-    (if _is_mac (eric/config-mac))
-    (if _is_linux (eric/config-linux))
-
-    (eric/config-evil)
-    (eric/config-buffers)
-    (eric/config-c-c++)
-    (eric/config-completion)
-    (eric/config-dired)
-    (eric/config-emmet)
-    (eric/config-flymake)
-    (eric/config-git)
-    (eric/config-markdown)
-    (eric/config-neotree)
-    (eric/config-org-mode)
-    (eric/config-projectile-mode)
-    (eric/config-rainbow-identifiers)
-    (eric/config-react)
-    (eric/config-repls)
-    (eric/config-ruby)
-    (eric/config-scrolling)
-    (eric/config-searching)
-    (eric/config-snippets)
-    (eric/config-ssh)
-    (eric/config-theme)
-)
 
 (defun eric/config-variables()
     ; always follow symlinks in git repos, don't ask
-    (setq vc-follow-symlinks t)
-)
+    (setq vc-follow-symlinks t))
 
 (defun eric/config-mappings()
     ; fullscreen
@@ -187,17 +272,14 @@
     (define-key evil-normal-state-map (kbd ", SPC") 'evil-search-highlight-persist-remove-all)
 
     ; show shell
-    (define-key evil-normal-state-map (kbd ",s") 'eric/show-or-create-shell)
-)
+    (define-key evil-normal-state-map (kbd ",s") 'eric/show-or-create-shell))
 
 (defun eric/config-mac()
   ; Don't use slow OSX fullscreen
   (setq ns-use-native-fullscreen nil)
-  (setq ns-use-fullscreen-animation nil)
-)
+  (setq ns-use-fullscreen-animation nil))
 
-(defun eric/config-linux()
-)
+(defun eric/config-linux())
 
 (defun eric/config-evil()
   (setq evil-search-wrap nil) ;; don't wrap search
@@ -210,7 +292,7 @@
 
     ; open up buffer list faster
     (define-key evil-normal-state-map (kbd ",b")  'helm-buffers-list)
-    
+
     ; next-buffer should skip all *BUFFERS*
     (defadvice next-buffer (after avoid-messages-buffer-in-next-buffer)
       "Advice around `next-buffer' to avoid going into the *Messages* buffer."
@@ -331,7 +413,7 @@
             (prev-char (char-before beg))
             (prev-self (buffer-substring-no-properties
                         (max (point-min) (- beg 5)) beg)))
-        (and (not (member curr-char 
+        (and (not (member curr-char
                         '(?0 ?1 ?2 ?3 ?4 ?5 ?6 ?7 ?8 ?9 ??)))
              (or (not (equal prev-char ?\.))
                  (equal prev-self "self.")
@@ -369,6 +451,15 @@
   (setq enh-ruby-add-encoding-comment-on-save nil)
 )
 
+(defun eric/config-scala ()
+  (evil-define-key 'insert ensime-search-mode-map
+    (kbd "C-q") 'ensime-search-quit
+    (kbd "C-j") 'ensime-search-next-match
+    (kbd "C-k") 'ensime-search-prev-match
+    (kbd "RET") 'ensime-search-choose-current-result
+    (kbd "C-i") 'ensime-search-insert-import-of-current-result)
+)
+
 (defun eric/config-scrolling ()
   ; smooth-scrolling is enabled by default
   ; change margins to something smaller
@@ -398,8 +489,8 @@
 
 (defun eric/config-theme()
     (if _is_term
-        (spacemacs/load-theme 'sanityinc-tomorrow-night)
-        (spacemacs/load-theme 'sanityinc-tomorrow-night))
+        (spacemacs/load-theme 'zenburn)
+        (spacemacs/load-theme 'zenburn))
 )
 
 ;; Spacemacs Util
@@ -427,32 +518,6 @@
   ))
 
 
+;; Do not write anything past this comment. This is where Emacs will
+;; auto-generate custom variable definitions.
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;; AUTOGENERATED
-;;;;;;;;;;; Autogenerated variables ;;;;;;;;;;
-(custom-set-variables
- ;; custom-set-variables was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- '(ac-ispell-requires 4 t)
- '(ahs-case-fold-search nil t)
- '(ahs-default-range (quote ahs-range-whole-buffer) t)
- '(ahs-idle-interval 0.25 t)
- '(ahs-idle-timer 0 t)
- '(ahs-inhibit-face-list nil t)
- '(custom-safe-themes
-   (quote
-    ("fc5fcb6f1f1c1bc01305694c59a1a861b008c534cae8d0e48e4d5e81ad718bc6" "97a2b10275e3e5c67f46ddaac0ec7969aeb35068c03ec4157cf4887c401e74b1" default)))
- '(package-selected-packages
-   (quote
-    (vimrc-mode tide typescript-mode ranger projectile-rails feature-mode dactyl-mode undo-tree flycheck-elm elm-mode command-log-mode simple-httpd osx-dictionary py-isort dumb-jump org yapfify evil-unimpaired git-link intero company-ghci dash-functional hlint-refactor darkokai-theme color-identifiers-mode scala-mode scala-mode2 iedit toc-org py-yapf org-plus-contrib org-bullets evil-visual-mark-mode paredit ob-http eyebrowse column-enforce-mode web-completion-data clojure-snippets powerline rake railscasts-theme disaster company-c-headers cmake-mode clang-format uuidgen omtose-phellack-theme majapahit-theme zone-nyan nyan-prompt nyan-mode sql-indent spinner packed pythonic link-hint live-py-mode dracula-theme 2048-game websocket livid-mode evil-ediff helm-hoogle bracketed-paste eshell-z monokai-theme request xterm-color grizzl orgit badwolf-theme highlight go-mode multiple-cursors diminish bind-map rvm hl-todo chruby tern popup rubocop rspec-mode help-fns+ async kite skewer-mode persp-mode farmhouse-theme evil-indent-plus auto-complete f magit-popup with-editor evil-magit jss ws-butler lorem-ipsum ace-jump-helm-line hydra inf-ruby restart-emacs clojure-mode ghc sbt-mode haskell-mode helm-core osx-trash jbeans-theme helm-flx helm-company evil-mc auto-compile avy anzu smartparens projectile yasnippet json-reformat zonokai-theme zenburn-theme zen-and-art-theme window-numbering web-mode web-beautify volatile-highlights vi-tilde-fringe underwater-theme ujelly-theme twilight-theme twilight-bright-theme twilight-anti-bright-theme tronesque-theme toxi-theme tao-theme tangotango-theme tango-plus-theme tango-2-theme tagedit sunny-day-theme sublime-themes subatomic256-theme subatomic-theme stekene-theme spray spaceline spacegray-theme soothe-theme soft-stone-theme soft-morning-theme soft-charcoal-theme smyx-theme smooth-scrolling smeargle slim-mode shm shell-pop seti-theme scss-mode sass-mode ruby-tools ruby-test-mode robe reverse-theme reveal-in-osx-finder restclient rbenv rainbow-mode rainbow-identifiers rainbow-delimiters pyvenv pytest pyenv-mode purple-haze-theme professional-theme popwin planet-theme pip-requirements phoenix-dark-pink-theme phoenix-dark-mono-theme pcre2el pbcopy pastels-on-dark-theme paradox page-break-lines organic-green-theme open-junk-file oldlace-theme occidental-theme obsidian-theme noflet noctilux-theme niflheim-theme neotree naquadah-theme mustang-theme multi-term move-text monochrome-theme molokai-theme moe-theme mmm-mode minimal-theme material-theme markdown-toc markdown-mode magit-gitflow magit macrostep lush-theme linum-relative light-soap-theme leuven-theme less-css-mode launchctl json-mode js2-refactor js2-mode js-doc jazz-theme jade-mode ir-black-theme inkpot-theme info+ indent-guide ido-vertical-mode hy-mode hungry-delete hindent highlight-parentheses highlight-numbers highlight-indentation heroku-theme hemisu-theme helm-themes helm-swoop helm-pydoc helm-projectile helm-mode-manager helm-make helm-gitignore helm-descbinds helm-dash helm-css-scss helm-c-yasnippet helm-ag helm hc-zenburn-theme haskell-snippets haml-mode gruvbox-theme gruber-darker-theme grandshell-theme gotham-theme google-translate golden-ratio go-eldoc gitignore-mode gitconfig-mode gitattributes-mode git-timemachine git-messenger git-commit gh-md gandalf-theme flycheck-pos-tip flycheck-haskell flycheck flx-ido floobits flatui-theme flatland-theme firebelly-theme fill-column-indicator fasd fancy-battery expand-region exec-path-from-shell evil-visualstar evil-tutor evil-surround evil-search-highlight-persist evil-numbers evil-nerd-commenter evil-matchit evil-lisp-state evil-jumper evil-indent-textobject evil-iedit-state evil-exchange evil-escape evil-args evil-anzu espresso-theme eshell-prompt-extras esh-help ensime enh-ruby-mode emmet-mode elisp-slime-nav django-theme define-word dash-at-point darktooth-theme darkmine-theme darkburn-theme dakrone-theme cython-mode cyberpunk-theme company-web company-tern company-statistics company-quickhelp company-go company-ghc company-cabal company-anaconda company colorsarenice-theme color-theme-sanityinc-tomorrow color-theme-sanityinc-solarized coffee-mode cmm-mode clues-theme clj-refactor clean-aindent-mode cider-eval-sexp-fu cider cherry-blossom-theme busybee-theme bundler buffer-move bubbleberry-theme birds-of-paradise-plus-theme auto-yasnippet auto-highlight-symbol auto-dictionary apropospriate-theme anti-zenburn-theme anaconda-mode ample-zen-theme ample-theme align-cljlet alect-themes aggressive-indent afternoon-theme adaptive-wrap ace-window ace-link ac-ispell evil-leader evil which-key quelpa package-build use-package bind-key spacemacs-theme s dash)))
- '(paradox-github-token t)
- '(ring-bell-function (quote ignore))
- '(truncate-lines t))
-(custom-set-faces
- ;; custom-set-faces was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- '(default ((t (:background nil)))))

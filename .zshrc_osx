@@ -84,6 +84,10 @@ cabal-uninstall() {
 export GOPATH=$CODE/go
 export PATH=$PATH:$GOPATH/bin
 
+################## RUST
+#
+export PATH=$PATH:$HOME/.cargo/bin
+
 ################## Node
 
 export PATH=$PATH:$CODE/tern/bin
@@ -270,7 +274,7 @@ ec2_instances() {
   # }
 
   local cmd='aws ec2 describe-instances --filters "Name=instance-state-name,Values=running"'
-  local jqcmd="jq --sort-keys '.Reservations | map(.Instances) | flatten | map({key: .InstanceId, value: {name: .Tags[0].Value, dns: .PublicDnsName, private_ip: .PrivateIpAddress, public_ip: .PublicIpAddress}}) | from_entries'"
+  local jqcmd="jq --sort-keys '.Reservations | map(.Instances) | flatten | map({key: .InstanceId, value: {name: .Tags[0].Value, dns: .PublicDnsName, private_dns: .PrivateDnsName, private_ip: .PrivateIpAddress, public_ip: .PublicIpAddress}}) | from_entries'"
   if [[ -n $1 ]]; then
     cmd="$cmd --filters 'Name=tag:Name,Values=*$1*'"
   fi
