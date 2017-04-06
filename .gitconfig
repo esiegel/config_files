@@ -5,23 +5,53 @@
 	editor = /usr/local/bin/vim
 	excludesfile = $HOME/.gitignore
 [alias]
-   co = checkout
-   ci = commit
-   st = status
-   br = branch
-   hist = log --graph --date=relative --pretty=tformat:'%Cred%h%Cgreen %ad%Creset | %s%d [%an]' 
-   type = cat-file -t
-   dump = cat-file -p
+	ancestor = merge-base MASTER HEAD
+	br = branch
+	ci = commit
+	co = checkout
+	dump = cat-file -p
+	hist = log --branches --remotes --tags --graph --oneline --decorate --date=relative --pretty=tformat:'%Cred%h%Cgreen %ad%Creset | %s%d [%an]' 
+	oldest-ancestor = !zsh -c 'diff --old-line-format='' --new-line-format='' <(git rev-list --first-parent "${1:-master}") <(git rev-list --first-parent "${2:-HEAD}") | head -1' -
+	st = status
+	stash-all = stash save --include-untracked
+	type = cat-file -t
 [branch]
 	autosetuprebase = always
 [color]
 	ui = auto
-[merge]
-	conflictstyle = diff3
-[push]
-	default = simple
-[web]
-	browser = open
+[diff]
+	compactionHeuristic = true
+	renameLimit = 999999
+	tool = icdiff
+[difftool]
+	prompt = false
+[difftool "icdiff"]
+	cmd = /usr/local/bin/icdiff --line-numbers $LOCAL $REMOTE
+[difftool "sourcetree"]
+	cmd = opendiff \"$LOCAL\" \"$REMOTE\"
+	path = 
 [filter "media"]
 	clean = git-media-clean %f
 	smudge = git-media-smudge %f
+[interactive]
+	diffFilter = diff-so-fancy
+[mergetool "sourcetree"]
+	cmd = /opt/homebrew-cask/Caskroom/sourcetree/2.0.4/SourceTree.app/Contents/Resources/opendiff-w.sh \"$LOCAL\" \"$REMOTE\" -ancestor \"$BASE\" -merge \"$MERGED\"
+	trustExitCode = true
+[merge]
+	conflictstyle = diff3
+	ff = only
+	renameLimit = 999999
+[pager]
+	diff = diff-so-fancy | less
+	log  = diff-so-fancy | less
+	show = diff-so-fancy | less
+[push]
+	default = simple
+	followTags = true
+[status]
+	showUntrackedFiles = all
+[transfer]
+	fsckobjects = true
+[web]
+	browser = open
