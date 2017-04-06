@@ -106,7 +106,7 @@ Style/IndentHash:
   Enabled: true
   EnforcedStyle: consistent
 
-Style/MethodCallParentheses:
+Style/MethodCallWithoutArgsParentheses:
   # allow calling methods with zero params as `method()`
   Enabled: false
 
