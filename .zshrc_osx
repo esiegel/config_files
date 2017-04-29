@@ -199,6 +199,25 @@ exit_if_failure() {
   fi
 }
 
+############## FILE HELPERS
+
+# search for a match and replace all matches with replacement
+search_and_replace() {
+  if [[ $# -lt 2 ]]; then
+    echo search_and_replace PATTERN REPLACEMENT
+    return 1
+  fi
+
+  local pattern=$1
+  local replacement=$2
+
+  # shift arguments twice, so that $@ will be empty or hold --filetype flags
+  shift
+  shift
+
+  ag "$pattern" -l "$@" | xargs perl -pi -e "s/$pattern/$replacement/g"
+}
+
 ############## GIT HELPERS
 
 # modified files
@@ -280,4 +299,4 @@ ec2_instances() {
   fi
 
   eval $cmd | eval $jqcmd
-}
+} 
