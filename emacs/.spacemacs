@@ -194,6 +194,7 @@ values."
   (eric/config-react)
   (eric/config-repls)
   (eric/config-ruby)
+  (eric/config-rust)
   (eric/config-scala)
   (eric/config-scrolling)
   (eric/config-searching)
@@ -460,6 +461,10 @@ values."
   ;; ruby mode, and extended ruby mode no magic encoding comment
   (setq ruby-insert-encoding-magic-comment nil)
   (setq enh-ruby-add-encoding-comment-on-save nil)
+)
+
+(defun eric/config-rust ()
+  (setq rust-indent-offset 2)
 )
 
 (defun eric/config-scala ()

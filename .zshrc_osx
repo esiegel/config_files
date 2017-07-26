@@ -87,10 +87,12 @@ export PATH=$PATH:$GOPATH/bin
 ################## RUST
 #
 export PATH=$PATH:$HOME/.cargo/bin
+export RUST_SRC_PATH=~/.rustup/toolchains/stable-x86_64-apple-darwin/lib/rustlib/src/rust/src
 
 ################## Node
 
 export PATH=$PATH:$CODE/tern/bin
+export PATH=$PATH:./node_modules/.bin
 
 ################# tmux
 
@@ -198,6 +200,9 @@ exit_if_failure() {
     exit $exit_code
   fi
 }
+
+# chrome
+alias chrome="/Applications/Google\ Chrome.app/Contents/MacOS/Google\ Chrome"
 
 ############## FILE HELPERS
 

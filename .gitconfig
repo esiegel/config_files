@@ -12,6 +12,11 @@
 	dump = cat-file -p
 	hist = log --branches --remotes --tags --graph --oneline --decorate --date=relative --pretty=tformat:'%Cred%h%Cgreen %ad%Creset | %s%d [%an]' 
 	oldest-ancestor = !zsh -c 'diff --old-line-format='' --new-line-format='' <(git rev-list --first-parent "${1:-master}") <(git rev-list --first-parent "${2:-HEAD}") | head -1' -
+  show-deleted = "!f() { \
+    latest_revision=$(git rev-list --max-count=1 --all -- \"*$1\"); \
+    path=$(git show --name-status --oneline $latest_revision | egrep '^(M|D|A)' | cut -f 2 | egrep \".*$1\" | head -n 1); \
+    git show $latest_revision^:$path ; \
+  }; f"
 	st = status
 	stash-all = stash save --include-untracked
 	type = cat-file -t
