@@ -1,3 +1,7 @@
+# add custom zsh function dir
+# Must go on top.
+fpath+=~/.zfunc
+
 ############## OH_MY_ZSH INIT
 
 ZSH=$HOME/.oh-my-zsh
@@ -5,8 +9,11 @@ ZSH_THEME="robbyrussell"
 
 DISABLE_AUTO_UPDATE="true"
 
+# Need to set default python before sourcing oh my zsh
+export PATH="/usr/local/opt/python/libexec/bin:$PATH"
+
 # Custom plugins may be added to ~/.oh-my-zsh/custom/plugins/
-plugins=(git git-extras git-flow osx pip virtualenvwrapper zsh-syntax-highlighting rake-fast)
+plugins=(git git-extras git-flow osx pip virtualenvwrapper zsh-syntax-highlighting rake-fast docker)
 
 # oh-my-zsh entry
 source $ZSH/oh-my-zsh.sh
@@ -21,7 +28,7 @@ eval "$(direnv hook zsh)"
 export DIRENV_LOG_FORMAT=""
 
 # Increase cmd history size
-export HISTSIZE=5000
+export HISTSIZE=12000
 
 # don't ask if "this is correct"
 unsetopt correct_all
@@ -85,9 +92,12 @@ export GOPATH=$CODE/go
 export PATH=$PATH:$GOPATH/bin
 
 ################## RUST
-#
+
 export PATH=$PATH:$HOME/.cargo/bin
 export RUST_SRC_PATH=~/.rustup/toolchains/stable-x86_64-apple-darwin/lib/rustlib/src/rust/src
+
+################## PYTHON
+export VIRTUALENVWRAPPER_PYTHON=/usr/local/bin/python3
 
 ################## Node
 
@@ -168,6 +178,14 @@ eval "$(fasd --init auto)"
 alias v='f -e vim' # quick opening files with vim
 alias o='a -e open' # quick opening files with open
 
+# fzf init
+export FZF_DEFAULT_COMMAND='ag -g ""'
+export FZF_DEFAULT_OPTS='--reverse --border --height=20 --history-size=10000'
+if [ -e /usr/local/opt/fzf/shell/completion.zsh ]; then
+  source /usr/local/opt/fzf/shell/key-bindings.zsh
+  source /usr/local/opt/fzf/shell/completion.zsh
+fi
+
 # ruby env home
 export RBENV_ROOT=/usr/local/var/rbenv
 alias bundleinstall="bundle install --path .gems"
@@ -187,6 +205,24 @@ if [[ -d $CODE/arcanist/bin ]]; then
    export PATH=$PATH:$CODE/arcanist/bin
    source $CODE/arcanist/resources/shell/bash-completion
 fi
+
+# fetches the patch file and patches directly
+arcpatch_via_patch() {
+  if [[ $# -lt 1 ]]; then
+    echo arcpatch_via_patch DIFF_ID
+    return 1
+  fi
+
+  local id="$1"
+  local patch_file=$(mktemp -t arcpatch)
+
+  arc export --revision $id --git > "$patch_file"
+  arc patch --patch "$patch_file" --nocommit
+  git add -A
+  git commit -a -m "arcpatch-$id"
+  git checkout -b "arcpatch-$id"
+  git branch -D arcpatch
+}
 
 # include scripts
 export PATH=$PATH:$CODE/scripts
