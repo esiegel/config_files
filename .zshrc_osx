@@ -173,11 +173,6 @@ alias swift="xcrun --sdk iphonesimulator8.0 swift"
 # add local scripts
 export PATH=$PATH:$CODE/scripts
 
-# fasd init
-eval "$(fasd --init auto)"
-alias v='f -e vim' # quick opening files with vim
-alias o='a -e open' # quick opening files with open
-
 # fzf init
 export FZF_DEFAULT_COMMAND='ag -g ""'
 export FZF_DEFAULT_OPTS='--reverse --border --height=20 --history-size=10000'
@@ -206,22 +201,30 @@ if [[ -d $CODE/arcanist/bin ]]; then
    source $CODE/arcanist/resources/shell/bash-completion
 fi
 
-# fetches the patch file and patches directly
+# fetches the patch files and patches directly in order specified
 arcpatch_via_patch() {
   if [[ $# -lt 1 ]]; then
-    echo arcpatch_via_patch DIFF_ID
+    echo arcpatch_via_patch [DIFF_ID...]
     return 1
   fi
 
-  local id="$1"
-  local patch_file=$(mktemp -t arcpatch)
+  # loop over ids to find last.  Not sure of bash/zsh better way.
+  for id in "$@"; do
+    local last_id=$id
+  done
 
-  arc export --revision $id --git > "$patch_file"
-  arc patch --patch "$patch_file" --nocommit
-  git add -A
-  git commit -a -m "arcpatch-$id"
-  git checkout -b "arcpatch-$id"
-  git branch -D arcpatch
+  # name this branch using our last diff id
+  git checkout -b "arcpatch-$last_id"
+
+  # iterate over each diff file and patch
+  for id in "$@"; do
+    local patch_file=$(mktemp -t arcpatch)
+
+    arc export --revision $id --git > "$patch_file"
+    arc patch --nobranch --patch "$patch_file" --nocommit
+    git add -A
+    git commit -a -m "$id"
+  done
 }
 
 # include scripts
