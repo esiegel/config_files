@@ -10,17 +10,20 @@ ZSH_THEME="robbyrussell"
 DISABLE_AUTO_UPDATE="true"
 
 # Need to set default python before sourcing oh my zsh
-export PATH="/usr/local/opt/python/libexec/bin:$PATH"
+export PATH="/usr/local/opt/python@2/libexec/bin:$PATH"
+
+# Need to set virtualenv default home before plugins
+export WORKON_HOME="~/.virtualenvs"
 
 # Custom plugins may be added to ~/.oh-my-zsh/custom/plugins/
-plugins=(git git-extras git-flow osx pip virtualenvwrapper zsh-syntax-highlighting rake-fast docker)
+plugins=(git-extras pip virtualenvwrapper zsh-syntax-highlighting docker)
 
 # oh-my-zsh entry
 source $ZSH/oh-my-zsh.sh
 
 ############## ZSH CONFIG
 
-export PATH=/usr/local/bin:/usr/local/sbin:/usr/bin:/bin:/usr/sbin:/sbin
+export PATH=$PATH:/usr/local/bin:/usr/local/sbin:/usr/bin:/bin:/usr/sbin:/sbin
 
 # Direnv hook for loading directory environments
 # Setting an empty log format prevents logging.
@@ -344,3 +347,17 @@ ec2_instances() {
 
   eval $cmd | eval $jqcmd
 } 
+
+############## JQ HELPERS
+
+# Find all unique json keys in a json file
+jq_uniq_keys() {
+  ftype=$(stat -f "%T" $stdin)
+  if [[ "$ftype" != "|" ]]; then
+     FILE=$1
+  else
+     FILE=${FILE:-/dev/stdin}
+  fi
+
+  cat $FILE | jq 'paths | map(.|tostring) | join(".")' | sed -E 's/\.[[:digit:]]+/.[]/g' | sort | uniq
+}
