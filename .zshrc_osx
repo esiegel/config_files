@@ -14,6 +14,7 @@ export PATH="/usr/local/opt/python@2/libexec/bin:$PATH"
 
 # Need to set virtualenv default home before plugins
 export WORKON_HOME="~/.virtualenvs"
+export VIRTUALENVWRAPPER_PYTHON=/usr/local/bin/python3
 
 # Custom plugins may be added to ~/.oh-my-zsh/custom/plugins/
 plugins=(git-extras pip virtualenvwrapper zsh-syntax-highlighting docker)
@@ -92,15 +93,13 @@ cabal-uninstall() {
 ################## GOLANG
 
 export GOPATH=$CODE/go
+export GOBIN=$GOPATH/bin
 export PATH=$PATH:$GOPATH/bin
 
 ################## RUST
 
 export PATH=$PATH:$HOME/.cargo/bin
 export RUST_SRC_PATH=~/.rustup/toolchains/stable-x86_64-apple-darwin/lib/rustlib/src/rust/src
-
-################## PYTHON
-export VIRTUALENVWRAPPER_PYTHON=/usr/local/bin/python3
 
 ################## Node
 
@@ -183,6 +182,9 @@ if [ -e /usr/local/opt/fzf/shell/completion.zsh ]; then
   source /usr/local/opt/fzf/shell/key-bindings.zsh
   source /usr/local/opt/fzf/shell/completion.zsh
 fi
+
+# ripgrep
+export RIPGREP_CONFIG_PATH="$HOME/.ripgreprc"
 
 # ruby env home
 export RBENV_ROOT=/usr/local/var/rbenv
@@ -328,6 +330,8 @@ num_lines_changed() {
 ec2_instances() {
   # Fetches EC2 instance info.
   #
+  # ec2_instances --region us-east-1 $NAME 
+  #
   # {
   #   "i-9e1dfa63": {
   #     "dns": "ec2-54-175-236-111.compute-1.amazonaws.com",
@@ -338,8 +342,20 @@ ec2_instances() {
   #     "name": "logstash-02"
   #   }
   # }
+  
+  # -D deletes options after using
+  # -E changes the parsing rules to not stop at the first string that isn't described by one of the specs
+  # -A stores results in associations
+  # : means argument IS  mandatory
+  # : means argument IS  mandatory
+  # :: means argument IS NOT mandatory
+  zparseopts -D -E -A ARGMAP -region:: r::=region
 
-  local cmd='aws ec2 describe-instances --filters "Name=instance-state-name,Values=running"'
+  # set region from --region, -r, or default
+  region_default=us-east-1
+  region=${ARGMAP[--region]:-${ARGMAP[-r]:-${region_default}}}
+
+  local cmd='aws ec2 describe-instances --region ${region} --filters "Name=instance-state-name,Values=running"'
   local jqcmd="jq --sort-keys '.Reservations | map(.Instances) | flatten | map({key: .InstanceId, value: {name: .Tags[0].Value, dns: .PublicDnsName, private_dns: .PrivateDnsName, private_ip: .PrivateIpAddress, public_ip: .PublicIpAddress}}) | from_entries'"
   if [[ -n $1 ]]; then
     cmd="$cmd --filters 'Name=tag:Name,Values=*$1*'"
@@ -360,4 +376,27 @@ jq_uniq_keys() {
   fi
 
   cat $FILE | jq 'paths | map(.|tostring) | join(".")' | sed -E 's/\.[[:digit:]]+/.[]/g' | sort | uniq
+}
+
+### PROXY
+tunnel_csua() {
+  echo "Turning on proxy"
+  networksetup -setsocksfirewallproxystate wi-fi on
+
+  echo "Tunnelling to CSUA"
+  ssh -D 8080 -C -q -N esiegel@csua.berkeley.edu
+
+  echo "Turning off proxy"
+  networksetup -setsocksfirewallproxystate wi-fi off
+}
+
+tunnel_docean() {
+  echo "Turning on proxy"
+  networksetup -setsocksfirewallproxystate wi-fi on
+
+  echo "Tunnelling to docean"
+  ssh -D 8080 -C -q -N root@docean
+
+  echo "Turning off proxy"
+  networksetup -setsocksfirewallproxystate wi-fi off
 }
