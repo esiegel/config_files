@@ -100,6 +100,7 @@ export PATH=$PATH:$GOPATH/bin
 
 export PATH=$PATH:$HOME/.cargo/bin
 export RUST_SRC_PATH=~/.rustup/toolchains/stable-x86_64-apple-darwin/lib/rustlib/src/rust/src
+export DYLD_LIBRARY_PATH=$DYLD_LIBRARY_PATH:/Users/eric/.rustup/toolchains/stable-x86_64-apple-darwin/lib
 
 ################## Node
 
@@ -379,24 +380,57 @@ jq_uniq_keys() {
 }
 
 ### PROXY
+# takes as argument "Wi-Fi" or "Thunderbolt Ethernet"
+network_active() {
+  # find ip address of network interface
+  ip=$(networksetup -getinfo $1 | perl -l -ne '/^IP address: (.*)/ && print $1')
+
+  # if ip exists
+  if [[ -z "$ip" ]]; then
+    # false
+    return 1
+  else
+    # true
+    return 0
+  fi
+}
+
 tunnel_csua() {
-  echo "Turning on proxy"
-  networksetup -setsocksfirewallproxystate wi-fi on
+  is_ethernet=$(network_active "Thunderbolt Ethernet")
+  if [[ is_ethernet == 0 ]]; then
+    device="Thunderbolt Ethernet"
+  else
+    device="Wi-Fi"
+  fi
+
+  echo "Turning on proxy for ${device}"
+  networksetup -setsocksfirewallproxystate "${device}" on
 
   echo "Tunnelling to CSUA"
   ssh -D 8080 -C -q -N esiegel@csua.berkeley.edu
 
   echo "Turning off proxy"
-  networksetup -setsocksfirewallproxystate wi-fi off
+  networksetup -setsocksfirewallproxystate "${device}" off
 }
 
 tunnel_docean() {
   echo "Turning on proxy"
-  networksetup -setsocksfirewallproxystate wi-fi on
+  # networksetup -setsocksfirewallproxystate wi-fi on
+  networksetup -setsocksfirewallproxystate 'Thunderbolt Ethernet' on
 
   echo "Tunnelling to docean"
   ssh -D 8080 -C -q -N root@docean
 
   echo "Turning off proxy"
-  networksetup -setsocksfirewallproxystate wi-fi off
+  # networksetup -setsocksfirewallproxystate wi-fi off
+  networksetup -setsocksfirewallproxystate 'Thunderbolt Ethernet' off
 }
+
+############## DOCKER
+docker_bash_latest() {
+  image_id=$(docker images | tail -n+2 | head -n 1 | squeeze | cut -d ' ' -f 3)
+  docker run -it ${image_id} /bin/bash
+}
+
+# Update path to find postgres 10
+export PATH="/usr/local/opt/postgresql@10/bin:$PATH"
