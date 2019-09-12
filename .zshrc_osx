@@ -17,7 +17,7 @@ export WORKON_HOME="~/.virtualenvs"
 export VIRTUALENVWRAPPER_PYTHON=/usr/local/bin/python3
 
 # Custom plugins may be added to ~/.oh-my-zsh/custom/plugins/
-plugins=(git-extras pip virtualenvwrapper zsh-syntax-highlighting docker)
+plugins=(git-extras pip virtualenvwrapper docker)
 
 # oh-my-zsh entry
 source $ZSH/oh-my-zsh.sh
@@ -434,3 +434,10 @@ docker_bash_latest() {
 
 # Update path to find postgres 10
 export PATH="/usr/local/opt/postgresql@10/bin:$PATH"
+
+############## NVM
+export NVM_DIR="$HOME/.nvm"
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh" --no-use  # This loads nvm
+[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
+
+source /Users/eric/Library/Preferences/org.dystroy.broot/launcher/bash/br
