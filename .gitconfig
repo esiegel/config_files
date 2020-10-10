@@ -3,7 +3,7 @@
 	email = siegel.eric@gmail.com
 [core]
 	editor = /usr/local/bin/vim
-	excludesfile = $HOME/.gitignore
+	excludesfile = ~/.gitignore
 [alias]
 	ancestor = merge-base MASTER HEAD
   br = for-each-ref --sort=committerdate refs/heads/ --format='%(HEAD) %(color:yellow)%(refname:short)%(color:reset) - %(color:red)%(objectname:short)%(color:reset) - %(contents:subject) - %(authorname) (%(color:green)%(committerdate:relative)%(color:reset))'
@@ -20,6 +20,14 @@
 	st = status
 	stash-all = stash save --include-untracked
 	type = cat-file -t
+
+  # Forcefully perform a git command in the current repo and recursively in all submodules (regardless of exit status).
+  # NOTE: The command (after `git run`) must be in quotes
+  # Example: git run "git checkout master"
+  submodule-run = !sh -c '\
+      $@ && \
+      git submodule foreach --recursive \"$@ || :\" && \
+  :' -
 [branch]
 	autosetuprebase = always
 [color]
