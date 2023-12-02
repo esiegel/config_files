@@ -10,17 +10,18 @@ ZSH_THEME="robbyrussell"
 DISABLE_AUTO_UPDATE="true"
 
 # Need to set default python before sourcing oh my zsh
-export PATH="/usr/local/opt/python@2/libexec/bin:$PATH"
+export PATH="/usr/local/opt/python@3/libexec/bin:/Users/eric.siegel/Library/Python/3.10/bin:$PATH"
 
 # Need to set virtualenv default home before plugins
 export WORKON_HOME="~/.virtualenvs"
 export VIRTUALENVWRAPPER_PYTHON=/usr/local/bin/python3
 
 # Custom plugins may be added to ~/.oh-my-zsh/custom/plugins/
-plugins=(git-extras pip virtualenvwrapper docker)
+plugins=(git-extras pip virtualenvwrapper docker golang)
 
 # oh-my-zsh entry
 source $ZSH/oh-my-zsh.sh
+autoload -U compinit && compinit
 
 ############## ZSH CONFIG
 
@@ -45,12 +46,17 @@ export PAGER=less
 # Less needs to pass through escaped color characters.
 export LESS=-R
 
+# location for XDG config files, for example git will look here
+export XDG_CONFIG_HOME=$HOME/.config
+
 CODE=$HOME/code
 
 if [[ -d $HOME/Dropbox ]]; then
-   DROPBOX=$HOME/Dropbox
+   export DROPBOX=$HOME/Dropbox
 elif [[ -d "$HOME/Dropbox (Personal)" ]]; then
-   DROPBOX="$HOME/Dropbox (Personal)"
+   export DROPBOX="$HOME/Dropbox (Personal)"
+elif [[ -d "$HOME/Library/CloudStorage/Box-Box" ]]; then
+   export DROPBOX="$HOME/Library/CloudStorage/Box-Box/eric.siegel"
 fi
 
 # load custom source
@@ -92,15 +98,96 @@ cabal-uninstall() {
 
 ################## GOLANG
 
+export PATH="/usr/local/opt/go@1.19/bin:$PATH"
+
 export GOPATH=$CODE/go
 export GOBIN=$GOPATH/bin
 export PATH=$PATH:$GOPATH/bin
+
+# required for new clang to by default search
+export CGO_LDFLAGS='-L/usr/local/lib' 
+
+
+go_build_multi() {
+  local main_path="$1"
+  local output_name="$2"
+
+  local osx_out="$2_osx"
+  local linux_out="$2_linux"
+  local windows_out="$2_windows"
+
+  echo "Building OSX: $1 -> $osx_out"
+  GOOS=darwin  GOARCH=amd64 go build -o "$osx_out" "$1" || exit 1
+  echo "Building LINUX: $1 -> $linux_out"
+  GOOS=linux   GOARCH=amd64 go build -o "$linux_out" "$1" || exit 1
+  echo "Building WINDOWS: $1 -> $windows_out"
+  GOOS=windows GOARCH=amd64 go build -o "$windows_out" "$1" || exit 1
+
+  # create a tar.gz file
+  tar -cvzf "$2.tar.gz" "$osx_out" "$linux_out" "$windows_out"
+}
+
+# Creates a git patch, and runs golangci-lint
+# should be run at the root of the repo
+golangci_from_patch() {
+  git diff main > /tmp/golangci.patch
+  golangci-lint run --print-issued-lines=false --out-format=colored-line-number --issues-exit-code=0 --max-issues-per-linter 0 --max-same-issues 0 --new-from-patch=/tmp/golangci.patch
+}
+
+golangci_all() {
+  golangci-lint run --print-issued-lines=false --out-format=colored-line-number --issues-exit-code=0 --max-issues-per-linter 0 --max-same-issues 0 ./...
+}
+
+################## GITHUB
+function gh_review_comments() {
+  url=$(gh pr view --json url | jq '.url' | tr -d '"')
+  owner=$(echo "$url" | cut -d '/' -f 4)
+  name=$(echo "$url" | cut -d '/' -f 5)
+  pr=$(echo "$url" | cut -d '/' -f 7)
+
+  echo "OWNER" $owner
+  echo "name" $name
+  echo "pr" $pr
+
+  gh api graphql -F owner="$owner" -F name="$name" -F pr="$pr" \
+  -f query='
+  query($name: String!, $owner: String!, $pr: Int!) {
+    repository(owner: $owner, name: $name) {
+      pullRequest(number: $pr) {
+        reviewThreads(first: 100) {
+          nodes {
+            comments(first: 100) {
+              nodes {
+                author{login} body createdAt
+              }
+            }
+          }
+        }
+      }
+    }
+  }'
+}
+
+function gh_review_reqs() {
+  local repo="$1"
+
+  if [[ $repo ]]; then
+    # query open review requests on specific repo
+    echo "Querying: $repo"
+    local data=$(gh pr list --json 'reviewRequests' --repo "$repo")
+  else 
+    # query open review requests on local repo in directory
+    local data=$(gh pr list --json 'reviewRequests')
+  fi
+
+  echo "$data" | jq 'map(.reviewRequests) | flatten | map(.login) | .[]' | sort | uniq -c | sort -nr
+}
 
 ################## RUST
 
 export PATH=$PATH:$HOME/.cargo/bin
 export RUST_SRC_PATH=~/.rustup/toolchains/stable-x86_64-apple-darwin/lib/rustlib/src/rust/src
-export DYLD_LIBRARY_PATH=$DYLD_LIBRARY_PATH:/Users/eric/.rustup/toolchains/stable-x86_64-apple-darwin/lib
+export DYLD_LIBRARY_PATH=$DYLD_LIBRARY_PATH:$HOME/.rustup/toolchains/stable-x86_64-apple-darwin/lib
 
 ################## Node
 
@@ -143,6 +230,8 @@ docker_eval() {
 
 ################## Other
 
+alias list_functions="print -l ${(ok)functions}"
+
 # Sourcetree to path
 alias stree=/Applications/SourceTree.app/Contents/Resources/stree
 
@@ -159,10 +248,17 @@ alias ssh_kernvm="ssh -p 2222 eric@127.0.0.1"
 # shortcuts
 # note: dropbox can contain spaces so we must wrap it in quotes
 alias ideas="$EDITOR \"$DROPBOX/ideas.md\""
-alias notes="$EDITOR \"$DROPBOX/notes.md\""
+# alias notes="$EDITOR \"$DROPBOX/notes/$1.md\""
 alias questions="$EDITOR \"$DROPBOX/questions.md\""
 alias scratch="$EDITOR \"$DROPBOX/scratch.md\""
 alias todo="$EDITOR \"$DROPBOX/todo.md\""
+
+notes() {
+  dir_fullpath=$(ls -d $DROPBOX/notes)
+  paths=$(ls $DROPBOX/notes | fzf --multi)
+  fullpaths=$(echo "$paths" | xargs -I "{}" echo "$dir_fullpath/{}")
+  vim $(echo "$fullpaths")
+}
 
 # android sdk
 export ANDROID_HOME=/usr/local/opt/android-sdk
@@ -174,11 +270,13 @@ export GPGKEY=ED6BE39D
 alias swift="xcrun --sdk iphonesimulator8.0 swift"
 
 # add local scripts
-export PATH=$PATH:$CODE/scripts
+export SCRIPTS_PATH="$DROPBOX/scripts"
+export PATH=$PATH:$SCRIPTS_PATH
+export PATH=$PATH:$SCRIPTS_PATH/bin
 
 # fzf init
 export FZF_DEFAULT_COMMAND='ag -g ""'
-export FZF_DEFAULT_OPTS='--reverse --border --height=20 --history-size=10000'
+export FZF_DEFAULT_OPTS="--bind 'ctrl-a:toggle-all' --reverse --border --height=20 --history-size=10000"
 if [ -e /usr/local/opt/fzf/shell/completion.zsh ]; then
   source /usr/local/opt/fzf/shell/key-bindings.zsh
   source /usr/local/opt/fzf/shell/completion.zsh
@@ -326,6 +424,36 @@ num_lines_changed() {
   echo "ADDED: $add_total REMOVED: $rm_total"
 }
 
+# Joins args delimeter.
+# Used to add '--or' in between params
+# https://stackoverflow.com/questions/1527049/how-can-i-join-elements-of-an-array-in-bash
+function join_by {
+  local d=${1-} f=${2-}
+  if shift 2; then
+    printf %s "$f" "${@/#/$d}"
+  fi
+}
+
+# grepAll PATTERN1, PATTERN2, ...
+#
+# Finds all files that contain all of the patterns even if they are on separate lines.
+# Builds and runs a command like:
+#   git grep --all-match -l -e 'PATTERN1' --or -e 'PATTERN2'
+#
+# NOTE: Only works within git repos
+function grepAll() {
+  local patterns=()
+  for pattern in "$@"; do
+    patterns+=("-e '$pattern'")
+  done
+
+  local joined_patterns=$(join_by ' --or ' "${patterns[@]}")
+
+  local cmd="git --no-pager grep --all-match -l -E -i $joined_patterns"
+
+  eval "$cmd"
+}
+
 ############## AWS HELPERS
 
 ec2_instances() {
@@ -437,7 +565,77 @@ export PATH="/usr/local/opt/postgresql@10/bin:$PATH"
 
 ############## NVM
 export NVM_DIR="$HOME/.nvm"
-[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh" --no-use  # This loads nvm
-[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
 
-source /Users/eric/Library/Preferences/org.dystroy.broot/launcher/bash/br
+# Set up "nvm" could use "--no-use" to defer setup, but we are here to use it
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh" # This sets up nvm
+[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # nvm bash_completion
+
+# this magic only enables nvm/npm/node when one of the commands are run
+# it also unsets the wrapper functions so the penalty of loading nvm happens once
+# function _install_nvm() {
+  # unset -f nvm npm node yarn
+  # # Set up "nvm" could use "--no-use" to defer setup, but we are here to use it
+  # [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh" # This sets up nvm
+  # [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # nvm bash_completion
+  # "$@"
+# }
+
+# function nvm() {
+    # _install_nvm nvm "$@"
+# }
+
+# function npm() {
+    # _install_nvm npm "$@"
+# }
+
+# function node() {
+    # _install_nvm node "$@"
+# }
+
+# function yarn() {
+    # _install_nvm yarn "$@"
+# }
+
+############## broot home
+source "$HOME/.config/broot/launcher/bash/br"
+
+export PATH="$HOME/.yarn/bin:$HOME/.config/yarn/global/node_modules/.bin:$PATH"
+
+############## java
+export PATH="/usr/local/opt/openjdk/bin:$PATH"
+export CPPFLAGS="-I/usr/local/opt/openjdk/include"
+
+# >>> conda initialize >>>
+# !! Contents within this block are managed by 'conda init' !!
+__conda_setup="$('/usr/local/Caskroom/miniconda/base/bin/conda' 'shell.zsh' 'hook' 2> /dev/null)"
+if [ $? -eq 0 ]; then
+    eval "$__conda_setup"
+else
+    if [ -f "/usr/local/Caskroom/miniconda/base/etc/profile.d/conda.sh" ]; then
+        . "/usr/local/Caskroom/miniconda/base/etc/profile.d/conda.sh"
+    else
+        export PATH="/usr/local/Caskroom/miniconda/base/bin:$PATH"
+    fi
+fi
+unset __conda_setup
+# <<< conda initialize <<<
+
+############## memory improvements
+# better process info
+alias psx='ps xfo pid,etime,pcpu,rss:9,state,cmd'
+alias psa='ps xafo pid,user:18,etime,pcpu,rss:9,state,cmd'
+
+alias jq_struct='jq '"'"'select(objects)|=[.] | map( paths(scalars) ) | map( map(select(numbers)="[]") | join(".")) | unique'"'"
+
+############## LLVM (clang)
+
+# We are ignoring `no-enum-constexpr-conversion` for now as ITK fail to compile with clang 16
+export PATH="/usr/local/opt/llvm/bin:$PATH"
+export LDFLAGS="-L$(brew --prefix)/lib -L$(brew --prefix)/opt/llvm/lib/c++ -Wl,-rpath,$(brew --prefix)/opt/llvm/lib/c++"
+export CFLAGS="-I/usr/local/include -I/usr/local/opt/llvm/include -Wno-enum-constexpr-conversion"
+export CPPFLAGS="-I/usr/local/include -I/usr/local/opt/llvm/include -Wno-enum-constexpr-conversion"
+export C_INCLUDE_PATH="/usr/local/include:/usr/local/opt/llvm/include"
+export CPLUS_INCLUDE_PATH="/usr/local/include:/usr/local/opt/llvm/include"
+export CC=/usr/local/opt/llvm/bin/clang
+export CXX=/usr/local/opt/llvm/bin/clang++
+

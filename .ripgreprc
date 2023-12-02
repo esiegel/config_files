@@ -14,3 +14,7 @@ web:*.{html,css,js,jsx}*
 
 # Because who cares about case!?
 --smart-case
+
+# Add glsl
+--type-add
+glsl:*.glsl.*

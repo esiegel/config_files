@@ -28,3 +28,9 @@ Temporary Items
 .rake_tasks
 
 .envrc
+
+# vscode directories
+.vscode/
+
+# intellij
+.idea

@@ -10,6 +10,13 @@
 	ci = commit
 	co = checkout
 	dump = cat-file -p
+  grepAll = "!f() { \
+    PATTERNS=""; \
+    for pattern in "$@"; do \
+      PATTERNS+=\" -e ${pattern}\"; \
+    done; \
+    git --no-pager grep --all-match -l -E -i $PATTERNS; \
+  }; f"
 	hist = log --branches --remotes --tags --graph --oneline --decorate --date=relative --pretty=tformat:'%Cred%h%Cgreen %ad%Creset | %s%d [%an]' 
 	oldest-ancestor = !zsh -c 'diff --old-line-format='' --new-line-format='' <(git rev-list --first-parent "${1:-master}") <(git rev-list --first-parent "${2:-HEAD}") | head -1' -
   show-deleted = "!f() { \
