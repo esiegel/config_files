@@ -1,3 +1,7 @@
+# uncomment to profile zsh loading
+# after shell loads run `zprof`
+# zmodload zsh/zprof
+
 # add custom zsh function dir
 # Must go on top.
 fpath+=~/.zfunc
@@ -17,7 +21,7 @@ export WORKON_HOME="~/.virtualenvs"
 export VIRTUALENVWRAPPER_PYTHON=/usr/local/bin/python3
 
 # Custom plugins may be added to ~/.oh-my-zsh/custom/plugins/
-plugins=(git-extras pip virtualenvwrapper docker golang)
+plugins=(git-extras pip virtualenvwrapper golang)
 
 # oh-my-zsh entry
 source $ZSH/oh-my-zsh.sh
@@ -563,38 +567,10 @@ docker_bash_latest() {
 # Update path to find postgres 10
 export PATH="/usr/local/opt/postgresql@10/bin:$PATH"
 
-############## NVM
-export NVM_DIR="$HOME/.nvm"
+############## fnm
 
-# Set up "nvm" could use "--no-use" to defer setup, but we are here to use it
-[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh" # This sets up nvm
-[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # nvm bash_completion
-
-# this magic only enables nvm/npm/node when one of the commands are run
-# it also unsets the wrapper functions so the penalty of loading nvm happens once
-# function _install_nvm() {
-  # unset -f nvm npm node yarn
-  # # Set up "nvm" could use "--no-use" to defer setup, but we are here to use it
-  # [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh" # This sets up nvm
-  # [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # nvm bash_completion
-  # "$@"
-# }
-
-# function nvm() {
-    # _install_nvm nvm "$@"
-# }
-
-# function npm() {
-    # _install_nvm npm "$@"
-# }
-
-# function node() {
-    # _install_nvm node "$@"
-# }
-
-# function yarn() {
-    # _install_nvm yarn "$@"
-# }
+# nvm replacement for managing node envs
+eval "$(fnm env --use-on-cd)"
 
 ############## broot home
 source "$HOME/.config/broot/launcher/bash/br"
