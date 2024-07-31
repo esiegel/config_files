@@ -27,3 +27,4 @@ export PATH=$PATH:/usr/bin/araxis
 if [ -f `brew --prefix`/etc/bash_completion ]; then
     . `brew --prefix`/etc/bash_completion
 fi
+. "$HOME/.cargo/env"
