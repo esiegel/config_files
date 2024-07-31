@@ -13,12 +13,15 @@ ZSH_THEME="robbyrussell"
 
 DISABLE_AUTO_UPDATE="true"
 
+# homebrew prefix
+HB="/opt/homebrew"
+
 # Need to set default python before sourcing oh my zsh
-export PATH="/usr/local/opt/python@3/libexec/bin:/Users/eric.siegel/Library/Python/3.10/bin:$PATH"
+export PATH="$HB/opt/python@3/libexec/bin:/Users/eric.siegel/Library/Python/3.10/bin:$PATH"
 
 # Need to set virtualenv default home before plugins
 export WORKON_HOME="~/.virtualenvs"
-export VIRTUALENVWRAPPER_PYTHON=/usr/local/bin/python3
+export VIRTUALENVWRAPPER_PYTHON="$HB/bin/python3"
 
 # Custom plugins may be added to ~/.oh-my-zsh/custom/plugins/
 plugins=(git-extras pip virtualenvwrapper golang)
@@ -29,7 +32,7 @@ autoload -U compinit && compinit
 
 ############## ZSH CONFIG
 
-export PATH=$PATH:/usr/local/bin:/usr/local/sbin:/usr/bin:/bin:/usr/sbin:/sbin
+export PATH="$PATH:$HB/bin:$HB/sbin:/usr/local/bin:/usr/local/sbin:/usr/bin:/bin:/usr/sbin:/sbin"
 
 # Direnv hook for loading directory environments
 # Setting an empty log format prevents logging.
@@ -102,14 +105,14 @@ cabal-uninstall() {
 
 ################## GOLANG
 
-export PATH="/usr/local/opt/go@1.19/bin:$PATH"
+export PATH="$HB/opt/go@1.22/bin:$PATH"
 
 export GOPATH=$CODE/go
 export GOBIN=$GOPATH/bin
 export PATH=$PATH:$GOPATH/bin
 
 # required for new clang to by default search
-export CGO_LDFLAGS='-L/usr/local/lib' 
+export CGO_LDFLAGS="-L$HB/lib"
 
 
 go_build_multi() {
@@ -121,7 +124,7 @@ go_build_multi() {
   local windows_out="$2_windows"
 
   echo "Building OSX: $1 -> $osx_out"
-  GOOS=darwin  GOARCH=amd64 go build -o "$osx_out" "$1" || exit 1
+  GOOS=darwin  GOARCH=arm64 go build -o "$osx_out" "$1" || exit 1
   echo "Building LINUX: $1 -> $linux_out"
   GOOS=linux   GOARCH=amd64 go build -o "$linux_out" "$1" || exit 1
   echo "Building WINDOWS: $1 -> $windows_out"
@@ -239,7 +242,7 @@ alias list_functions="print -l ${(ok)functions}"
 # Sourcetree to path
 alias stree=/Applications/SourceTree.app/Contents/Resources/stree
 
-alias emacsapp="open /usr/local/Cellar/emacs/24.4-dev/Emacs.app"
+alias emacsapp="open $HB/usr/local/Cellar/emacs/24.4-dev/Emacs.app"
 
 # ack 2.0 doesn't support searching all files, this does.
 alias acka="ack --type-set='all:match:.*' -k"
@@ -265,7 +268,7 @@ notes() {
 }
 
 # android sdk
-export ANDROID_HOME=/usr/local/opt/android-sdk
+export ANDROID_HOME="$HB/opt/android-sdk"
 
 # GPG default key
 export GPGKEY=ED6BE39D
@@ -281,16 +284,16 @@ export PATH=$PATH:$SCRIPTS_PATH/bin
 # fzf init
 export FZF_DEFAULT_COMMAND='ag -g ""'
 export FZF_DEFAULT_OPTS="--bind 'ctrl-a:toggle-all' --reverse --border --height=20 --history-size=10000"
-if [ -e /usr/local/opt/fzf/shell/completion.zsh ]; then
-  source /usr/local/opt/fzf/shell/key-bindings.zsh
-  source /usr/local/opt/fzf/shell/completion.zsh
+if [ -e "$HB/opt/fzf/shell/completion.zsh" ]; then
+  source "$HB/opt/fzf/shell/key-bindings.zsh"
+  source "$HB/opt/fzf/shell/completion.zsh"
 fi
 
 # ripgrep
 export RIPGREP_CONFIG_PATH="$HOME/.ripgreprc"
 
 # ruby env home
-export RBENV_ROOT=/usr/local/var/rbenv
+export RBENV_ROOT="$HB/var/rbenv"
 alias bundleinstall="bundle install --path .gems"
 
 # To enable shims and autocompletion add to your profile:
@@ -564,9 +567,6 @@ docker_bash_latest() {
   docker run -it ${image_id} /bin/bash
 }
 
-# Update path to find postgres 10
-export PATH="/usr/local/opt/postgresql@10/bin:$PATH"
-
 ############## fnm
 
 # nvm replacement for managing node envs
@@ -578,19 +578,19 @@ source "$HOME/.config/broot/launcher/bash/br"
 export PATH="$HOME/.yarn/bin:$HOME/.config/yarn/global/node_modules/.bin:$PATH"
 
 ############## java
-export PATH="/usr/local/opt/openjdk/bin:$PATH"
-export CPPFLAGS="-I/usr/local/opt/openjdk/include"
+export PATH="$HB/opt/openjdk/bin:$PATH"
+export CPPFLAGS="-I$HB/opt/openjdk/include"
 
 # >>> conda initialize >>>
 # !! Contents within this block are managed by 'conda init' !!
-__conda_setup="$('/usr/local/Caskroom/miniconda/base/bin/conda' 'shell.zsh' 'hook' 2> /dev/null)"
+__conda_setup="$("$HB/Caskroom/miniconda/base/bin/conda" 'shell.zsh' 'hook' 2> /dev/null)"
 if [ $? -eq 0 ]; then
     eval "$__conda_setup"
 else
-    if [ -f "/usr/local/Caskroom/miniconda/base/etc/profile.d/conda.sh" ]; then
-        . "/usr/local/Caskroom/miniconda/base/etc/profile.d/conda.sh"
+    if [ -f "$HB/Caskroom/miniconda/base/etc/profile.d/conda.sh" ]; then
+        . "$HB/Caskroom/miniconda/base/etc/profile.d/conda.sh"
     else
-        export PATH="/usr/local/Caskroom/miniconda/base/bin:$PATH"
+        export PATH="$HB/Caskroom/miniconda/base/bin:$PATH"
     fi
 fi
 unset __conda_setup
@@ -606,12 +606,16 @@ alias jq_struct='jq '"'"'select(objects)|=[.] | map( paths(scalars) ) | map( map
 ############## LLVM (clang)
 
 # We are ignoring `no-enum-constexpr-conversion` for now as ITK fail to compile with clang 16
-export PATH="/usr/local/opt/llvm/bin:$PATH"
+export PATH="$HB/opt/llvm/bin:$PATH"
 export LDFLAGS="-L$(brew --prefix)/lib -L$(brew --prefix)/opt/llvm/lib/c++ -Wl,-rpath,$(brew --prefix)/opt/llvm/lib/c++"
-export CFLAGS="-I/usr/local/include -I/usr/local/opt/llvm/include -Wno-enum-constexpr-conversion"
-export CPPFLAGS="-I/usr/local/include -I/usr/local/opt/llvm/include -Wno-enum-constexpr-conversion"
-export C_INCLUDE_PATH="/usr/local/include:/usr/local/opt/llvm/include"
-export CPLUS_INCLUDE_PATH="/usr/local/include:/usr/local/opt/llvm/include"
-export CC=/usr/local/opt/llvm/bin/clang
-export CXX=/usr/local/opt/llvm/bin/clang++
+export CFLAGS="-I$HB/include -I$HB/opt/llvm/include -Wno-enum-constexpr-conversion"
+export CPPFLAGS="-I$HB/include -I$HB/opt/llvm/include -Wno-enum-constexpr-conversion"
+export C_INCLUDE_PATH="$HB/include:$HB/opt/llvm/include"
+export CPLUS_INCLUDE_PATH="$HB/include:$HB/opt/llvm/include"
+export CC="$HB/opt/llvm/bin/clang"
+export CXX="$HB/opt/llvm/bin/clang++"
 
+############## google cloud
+
+source "$(brew --prefix)/share/google-cloud-sdk/path.zsh.inc"
+source "$(brew --prefix)/share/google-cloud-sdk/completion.zsh.inc"
