@@ -1,10 +1,12 @@
+local terminal = require("util.terminal")
+
 -- Functional wrapper for mapping custom keybindings
 local function map(mode, lhs, rhs, opts)
 	local options = { noremap = true }
 	if opts then
 		options = vim.tbl_extend("force", options, opts)
 	end
-	vim.api.nvim_set_keymap(mode, lhs, rhs, options)
+	vim.keymap.set(mode, lhs, rhs, options)
 end
 
 -- remap escape. Mode is "" or "!" as that force nvo
@@ -39,6 +41,7 @@ vim.cmd([[cnoremap <Esc><C-F>	<S-Right>]]) -- forward one word
 
 -- escape to terminal normal
 vim.cmd([[tnoremap <C-j> <C-\><C-n>]])
+map("n", "<leader>z", terminal.toggle_term)
 
 -- change to next quickfix error
 -- map("n", "<leader>h", function() vim.cmd("cprev") end, { silent = true })

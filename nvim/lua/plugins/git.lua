@@ -1,5 +1,11 @@
+local shell = require("util.shell")
+
 local diff_main = function()
-	local mainbranch = os.execute("git mainbranch")
+	local mainbranch, err = shell.cmd("git mainbranch")
+	if err then
+		return
+	end
+
 	vim.cmd("Gdiff " .. mainbranch)
 end
 
