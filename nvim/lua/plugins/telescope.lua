@@ -64,10 +64,16 @@ return {
 			{ "<leader>b", "<cmd>lua require('telescope.builtin').buffers()<cr>", desc = "Buffers" },
 			{ "<leader>f", "<cmd>lua require('telescope.builtin').find_files()<cr>", desc = "Find Files" },
 
-			-- { "<leader>/", util.telescope("live_grep"), desc = "Find in Files (Grep)" },
-			-- { "<leader><space>", util.telescope("find_files"), desc = "Find Files" },
+			{
+				"<leader>g",
+				use_builtin(function(b)
+					-- b.grep_string({ only_sort_text = true })
+					b.grep_string()
+				end),
+				desc = "Grep",
+			},
+
 			{ "<leader>fb", "<cmd>Telescope buffers<cr>", desc = "Buffers" },
-			-- { "<leader>ff", util.telescope("find_files"), desc = "Find Files" },
 			{ "<leader>fr", "<cmd>Telescope oldfiles<cr>", desc = "Recent" },
 			{ "<leader>gc", "<Cmd>Telescope git_commits<CR>", desc = "commits" },
 			{ "<leader>gs", "<Cmd>Telescope git_status<CR>", desc = "status" },
@@ -108,6 +114,7 @@ return {
 
 		config = function()
 			local telescope = require("telescope")
+			local actions = require("telescope.actions")
 			-- local layout_strategies = require("telescope.pickers.layout_strategies")
 
 			local options = {
@@ -123,10 +130,14 @@ return {
 						i = {
 							["<C-y>"] = yank_all_entries,
 							["<C-p>"] = yank_preview_lines,
+							["<C-j>"] = actions.move_selection_next,
+							["<C-k>"] = actions.move_selection_previous,
 						},
 						n = {
 							["<C-y>"] = yank_all_entries,
 							["<C-p>"] = yank_preview_lines,
+							["<C-j>"] = actions.move_selection_next,
+							["<C-k>"] = actions.move_selection_previous,
 						},
 					},
 				},
