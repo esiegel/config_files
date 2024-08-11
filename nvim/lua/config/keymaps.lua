@@ -29,20 +29,28 @@ map("n", "<C-l>", ":bn<cr>", { silent = true })
 map("n", "<leader>ev", "<cmd>:vs /Users/eric.siegel/.config/nvim/init.lua <cr>")
 
 -- Use emacs bindings for command mode.
-vim.cmd([[cnoremap <C-A> <Home>]]) -- start of line
-vim.cmd([[cnoremap <C-B> <Left>]]) -- back one character
-vim.cmd([[cnoremap <C-D> <Del>]]) -- delete character under cursor
-vim.cmd([[cnoremap <C-E> <End>]]) -- end of line
-vim.cmd([[cnoremap <C-F> <Right>]]) -- forward one character
-vim.cmd([[cnoremap <C-N> <Down>]]) -- recall newer command-line
-vim.cmd([[cnoremap <C-P> <Up>]]) -- recall previous (older) command-line
-vim.cmd([[cnoremap <Esc><C-B>	<S-Left>]]) -- back one word
-vim.cmd([[cnoremap <Esc><C-F>	<S-Right>]]) -- forward one word
+map("c", "<C-A>", "<Home>") --   start     of          line
+map("c", "<C-B>", "<Left>") --   back      one         character
+map("c", "<C-D>", "<Del>") --   delete    character   under          cursor
+map("c", "<C-E>", "<End>") --   end       of          line
+map("c", "<C-F>", "<Right>") --   forward   one         character
+map("c", "<C-N>", "<Down>") --   recall    newer       command-line
+map("c", "<C-P>", "<Up>") --   recall    previous    (older)        command-line
+map("c", "<Esc><C-B>", "<S-Left>") --   back      one         word
+map("c", "<Esc><C-F>", "<S-Right>") --   forward   one         word
 
 -- escape to terminal normal
-vim.cmd([[tnoremap <C-j> <C-\><C-n>]])
+map("t", "<C-j>", "<C-\\><C-n>")
 map("n", "<leader>z", terminal.toggle_term)
 
 -- change to next quickfix error
--- map("n", "<leader>h", function() vim.cmd("cprev") end, { silent = true })
--- map("n", "<leader>l", function() vim.cmd("cnext") end, { silent = true })
+map("n", "<leader>h", function()
+	vim.cmd("cprev")
+end, { silent = true })
+map("n", "<leader>l", function()
+	vim.cmd("cnext")
+end, { silent = true })
+
+-- Commenting
+map("n", "<leader>c<Space>", "<cmd>:normal gcc<CR>")
+map("x", "<leader>c<Space>", "<cmd>:normal gcc<CR>")

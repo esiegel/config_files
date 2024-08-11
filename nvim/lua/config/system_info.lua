@@ -51,10 +51,10 @@ function M.vim_tmp_dir()
 end
 
 function M.make_tmp_dir()
-  local tmp_dir = M.vim_tmp_dir()
-  if not vim.fn.isdirectory(tmp_dir) then
-    vim.fn.mkdir(tmp_dir, "p")
-  end
+	local tmp_dir = M.vim_tmp_dir()
+	if not vim.fn.isdirectory(tmp_dir) then
+		vim.fn.mkdir(tmp_dir, "p")
+	end
 end
 
 return M

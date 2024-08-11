@@ -12,6 +12,9 @@ end
 -- Git source control management
 return {
 	"tpope/vim-fugitive",
+	dependencies = {
+		"tpope/vim-rhubarb", -- for adding GBrowse support
+	},
 	lazy = false,
 	keys = {
 		{ "<leader>v", "<cmd>Gdiff<cr>", desc = "Git Diff file" },

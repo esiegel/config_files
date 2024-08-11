@@ -15,10 +15,10 @@ local find_terminal_bufs = function()
 	local bufs = vim.api.nvim_list_bufs()
 	local found = {}
 
-	for i, buf in ipairs(bufs) do
+	for _, buf in ipairs(bufs) do
 		local name = vim.api.nvim_buf_get_name(buf)
 		if starts_with(name, "term://") then
-			table.insert(found, i)
+			table.insert(found, buf)
 		end
 	end
 
@@ -38,13 +38,12 @@ function M.toggle_term()
 			print("OPENING" .. first_buf)
 			vim.cmd("terminal")
 		else
-			vim.cmd("vsplit | terminal ++curwin")
+			vim.cmd("vsplit")
+			vim.cmd("terminal")
 		end
 
 		return
 	end
-
-	local cur_buf = vim.api.nvim_get_current_buf()
 
 	-- get first terminal buffer
 	local term_buf = first_element(bufs)
