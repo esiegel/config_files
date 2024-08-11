@@ -3,6 +3,8 @@ return {
 		"nvim-treesitter/nvim-treesitter",
 		config = function()
 			require("nvim-treesitter.configs").setup({
+				modules = {},
+
 				-- A list of parser names, or "all"
 				ensure_installed = { "c", "lua", "rust", "typescript" },
 

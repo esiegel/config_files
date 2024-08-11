@@ -14,7 +14,7 @@ ZSH_THEME="robbyrussell"
 DISABLE_AUTO_UPDATE="true"
 
 # homebrew prefix
-HB="/opt/homebrew"
+HB=$(brew --prefix)
 
 # Need to set default python before sourcing oh my zsh
 export PATH="$HB/opt/python@3/libexec/bin:/Users/eric.siegel/Library/Python/3.10/bin:$PATH"
@@ -383,8 +383,19 @@ recent_changes() {
   local default_start_revision=$(git ancestor)
   local start_revision=${1:-$default_start_revision}
   local end_revision=${2:-HEAD}
-  git diff-tree --name-only -r "${start_revision}..${end_revision}"
-  git ls-files --others --exclude-standard
+
+  # used so that we can modify the paths and open recent changes no matter where we
+  # are in the git tree
+  # Will be '.' if we are at the root or `a/b/c`
+  local root_path=$(git root -r)
+  local slash_count=$(echo "$root_path" | tr -cd '/' | wc -c)
+  local path_prefix=""
+  for ((i=0; i<$slash_count; i++)); do
+    path_prefix+="../"
+  done
+
+  git diff-tree --name-only -r "${start_revision}..${end_revision}" | awk -v prefix="$path_prefix" '{print prefix $0}'
+  git ls-files --others --exclude-standard | awk -v prefix="$path_prefix" '{print prefix $0}'
 }
 
 
@@ -605,17 +616,18 @@ alias jq_struct='jq '"'"'select(objects)|=[.] | map( paths(scalars) ) | map( map
 
 ############## LLVM (clang)
 
+# TODO ITK isn't building with clang 18 so we have this commented out
 # We are ignoring `no-enum-constexpr-conversion` for now as ITK fail to compile with clang 16
-export PATH="$HB/opt/llvm/bin:$PATH"
-export LDFLAGS="-L$(brew --prefix)/lib -L$(brew --prefix)/opt/llvm/lib/c++ -Wl,-rpath,$(brew --prefix)/opt/llvm/lib/c++"
-export CFLAGS="-I$HB/include -I$HB/opt/llvm/include -Wno-enum-constexpr-conversion"
-export CPPFLAGS="-I$HB/include -I$HB/opt/llvm/include -Wno-enum-constexpr-conversion"
-export C_INCLUDE_PATH="$HB/include:$HB/opt/llvm/include"
-export CPLUS_INCLUDE_PATH="$HB/include:$HB/opt/llvm/include"
-export CC="$HB/opt/llvm/bin/clang"
-export CXX="$HB/opt/llvm/bin/clang++"
+# export PATH="$HB/opt/llvm/bin:$PATH"
+# export LDFLAGS="-L$HB/lib -L$HB/opt/llvm/lib/c++ -L$HB/opt/zlib/lib -Wl,-rpath,$HB/opt/llvm/lib/c++"
+# export CFLAGS="-I$HB/include -I$HB/opt/llvm/include -I$HB/opt/zlib/include -Wno-enum-constexpr-conversion"
+# export CPPFLAGS="-I$HB/include -I$HB/opt/llvm/include -I$HB/opt/zlib/include -Wno-enum-constexpr-conversion"
+# export C_INCLUDE_PATH="$HB/include:$HB/opt/llvm/include"
+# export CPLUS_INCLUDE_PATH="$HB/include:$HB/opt/llvm/include"
+# export CC="$HB/opt/llvm/bin/clang"
+# export CXX="$HB/opt/llvm/bin/clang++"
 
 ############## google cloud
 
-source "$(brew --prefix)/share/google-cloud-sdk/path.zsh.inc"
-source "$(brew --prefix)/share/google-cloud-sdk/completion.zsh.inc"
+source "$HB/share/google-cloud-sdk/path.zsh.inc"
+source "$HB/share/google-cloud-sdk/completion.zsh.inc"

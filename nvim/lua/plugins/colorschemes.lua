@@ -10,14 +10,12 @@ return {
 		end,
 	},
 
-	-- gruvbox
 	{
 		"morhetz/gruvbox",
 		lazy = true,
 		priority = 999,
 	},
 
-	-- tokyonight
 	{
 		"folke/tokyonight.nvim",
 		lazy = true,
@@ -27,5 +25,17 @@ return {
 		--    tokyonight.setup({ style = "moon" })
 		--    tokyonight.load()
 		--  end,
+	},
+
+	{
+		"EdenEast/nightfox.nvim",
+		lazy = true,
+		priority = 998,
+	},
+
+	{
+		"rebelot/kanagawa.nvim",
+		lazy = true,
+		priority = 998,
 	},
 }
