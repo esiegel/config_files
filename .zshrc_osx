@@ -119,19 +119,22 @@ go_build_multi() {
   local main_path="$1"
   local output_name="$2"
 
-  local osx_out="$2_osx"
+  local osx_arm_out="$2_osx_arm"
+  local osx_amd_out="$2_osx_amd"
   local linux_out="$2_linux"
   local windows_out="$2_windows"
 
-  echo "Building OSX: $1 -> $osx_out"
-  GOOS=darwin  GOARCH=arm64 go build -o "$osx_out" "$1" || exit 1
+  echo "Building ARM64 OSX: $1 -> $osx_arm_out"
+  GOOS=darwin  GOARCH=arm64 go build -o "$osx_arm_out" "$1" || exit 1
+  echo "Building AMD64 OSX: $1 -> $osx_amd_out"
+  GOOS=darwin  GOARCH=amd64 go build -o "$osx_amd_out" "$1" || exit 1
   echo "Building LINUX: $1 -> $linux_out"
   GOOS=linux   GOARCH=amd64 go build -o "$linux_out" "$1" || exit 1
   echo "Building WINDOWS: $1 -> $windows_out"
   GOOS=windows GOARCH=amd64 go build -o "$windows_out" "$1" || exit 1
 
   # create a tar.gz file
-  tar -cvzf "$2.tar.gz" "$osx_out" "$linux_out" "$windows_out"
+  tar -cvzf "$2.tar.gz" "$osx_arm_out" "$osx_amd_out" "$linux_out" "$windows_out"
 }
 
 # Creates a git patch, and runs golangci-lint
@@ -613,6 +616,13 @@ alias psx='ps xfo pid,etime,pcpu,rss:9,state,cmd'
 alias psa='ps xafo pid,user:18,etime,pcpu,rss:9,state,cmd'
 
 alias jq_struct='jq '"'"'select(objects)|=[.] | map( paths(scalars) ) | map( map(select(numbers)="[]") | join(".")) | unique'"'"
+
+############## BUILD
+
+export LDFLAGS="-L$HB/lib -L$HB/opt/zlib/lib -Wl,-rpath,$HB/opt/llvm/lib/c++"
+export CFLAGS="-I$HB/include -I$HB/opt/zlib/include -Wno-enum-constexpr-conversion"
+export CPPFLAGS="-I$HB/include -I$HB/opt/zlib/include -Wno-enum-constexpr-conversion"
+export C_INCLUDE_PATH="$HB/include"
 
 ############## LLVM (clang)
 
