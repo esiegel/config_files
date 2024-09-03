@@ -47,7 +47,7 @@ unsetopt correct_all
 unsetopt correct
 
 # set editor variables
-export EDITOR=$(which vim)
+export EDITOR=$(which nvim)
 export PAGER=less
 
 # Less needs to pass through escaped color characters.
@@ -267,7 +267,7 @@ notes() {
   dir_fullpath=$(ls -d $DROPBOX/notes)
   paths=$(ls $DROPBOX/notes | fzf --multi)
   fullpaths=$(echo "$paths" | xargs -I "{}" echo "$dir_fullpath/{}")
-  vim $(echo "$fullpaths")
+  nvim $(echo "$fullpaths")
 }
 
 # android sdk
