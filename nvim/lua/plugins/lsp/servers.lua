@@ -6,14 +6,19 @@ local servers = {
   bashls = {},
   clangd = {},
   cssls = {},
-  eslint = {
-    workingDirectory = { mode = "auto" },
-  },
   gopls = {},
   tsserver = {},
   html = {},
   jsonls = {},
   yamlls = {},
+
+  -- JS/TS
+  eslint = {
+    workingDirectory = { mode = "auto" },
+  },
+  prettier = {
+    workingDirectory = { mode = "auto" },
+  },
 
   -- lua
   lua_ls = {

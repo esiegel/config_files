@@ -67,7 +67,7 @@ return {
         sources = {
           nls.builtins.diagnostics.flake8,
           nls.builtins.formatting.black,
-          nls.builtins.formatting.prettierd,
+          nls.builtins.formatting.prettier,
           nls.builtins.formatting.stylua,
         },
       })
@@ -83,6 +83,7 @@ return {
     ensure_installed = {
       "black",
       "flake8",
+      "prettier",
       "rust-analyzer",
       "shellcheck",
       "shfmt",
