@@ -27,7 +27,9 @@ return {
     config = function(plugin)
       -- setup formatting and keymaps
       on_attach(function(client, buffer)
-        require("plugins.lsp.format").on_attach(client, buffer)
+        -- TODO: should i reenable formatting from the lsp or use conform?
+        -- require("plugins.lsp.format").on_attach(client, buffer)
+        --
         require("plugins.lsp.keymaps").on_attach(client, buffer)
       end)
 
@@ -71,6 +73,51 @@ return {
           nls.builtins.formatting.stylua,
         },
       })
+    end,
+  },
+
+  {
+    "stevearc/conform.nvim",
+    event = { "BufWritePre" },
+    cmd = { "ConformInfo" },
+
+    -- This comments provides type hinting with LuaLS
+    ---@module "conform"
+    ---@type conform.setupOpts
+    opts = {
+      -- Define your formatters
+      formatters_by_ft = {
+        lua = { "stylua" },
+        python = { "isort", "black" },
+
+        -- web
+        css = { "prettierd", "prettier", stop_after_first = true },
+        html = { "prettierd", "prettier", stop_after_first = true },
+        javascript = { "prettierd", "prettier", stop_after_first = true },
+        javascriptreact = { "prettierd", "prettier", stop_after_first = true },
+        json = { "prettierd", "prettier", stop_after_first = true },
+        typescript = { "prettierd", "prettier", stop_after_first = true },
+        typescriptreact = { "prettierd", "prettier", stop_after_first = true },
+      },
+      -- Set default options
+      default_format_opts = {
+        lsp_format = "fallback",
+      },
+      -- Set up format-on-save
+      format_on_save = {
+        lsp_fallback = true,
+        timeout_ms = 500
+      },
+      -- Customize formatters
+      formatters = {
+        shfmt = {
+          prepend_args = { "-i", "2" },
+        },
+      },
+    },
+    init = function()
+      -- If you want the formatexpr, here is the place to set it
+      vim.o.formatexpr = "v:lua.require'conform'.formatexpr()"
     end,
   },
 
