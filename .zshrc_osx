@@ -63,7 +63,7 @@ if [[ -d $HOME/Dropbox ]]; then
 elif [[ -d "$HOME/Dropbox (Personal)" ]]; then
    export DROPBOX="$HOME/Dropbox (Personal)"
 elif [[ -d "$HOME/Library/CloudStorage/Box-Box" ]]; then
-   export DROPBOX="$HOME/Library/CloudStorage/Box-Box/eric.siegel"
+   export DROPBOX="$HOME/Documents/dropbox_local"
 fi
 
 # load custom source
@@ -278,11 +278,6 @@ export GPGKEY=ED6BE39D
 
 # swift repl
 alias swift="xcrun --sdk iphonesimulator8.0 swift"
-
-# add local scripts
-export SCRIPTS_PATH="$DROPBOX/scripts"
-export PATH=$PATH:$SCRIPTS_PATH
-export PATH=$PATH:$SCRIPTS_PATH/bin
 
 # fzf init
 export FZF_DEFAULT_COMMAND='ag -g ""'
