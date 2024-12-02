@@ -265,7 +265,7 @@ alias todo="$EDITOR \"$DROPBOX/todo.md\""
 
 notes() {
   dir_fullpath=$(ls -d $DROPBOX/notes)
-  paths=$(ls $DROPBOX/notes | fzf --multi)
+  paths=$(ls -t $DROPBOX/notes | fzf --multi)
   fullpaths=$(echo "$paths" | xargs -I "{}" echo "$dir_fullpath/{}")
   nvim $(echo "$fullpaths")
 }
@@ -378,9 +378,11 @@ alias modified_files="git ls-files -m -o -X .gitignore -X ~/.gitignore"
 
 # find recent files committed
 recent_changes() {
-  local default_start_revision=$(git ancestor)
-  local start_revision=${1:-$default_start_revision}
+  # The parent branch/commit that we will eventually merge/rebase onto
+  local default_parent=$(git mainbranch)
+  local parent=${1:-$default_parent}
   local end_revision=${2:-HEAD}
+  local start_revision=$(git merge-base $parent $end_revision)
 
   # used so that we can modify the paths and open recent changes no matter where we
   # are in the git tree

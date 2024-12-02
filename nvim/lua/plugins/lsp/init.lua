@@ -59,37 +59,66 @@ return {
 	},
 
 	-- formatters
+	-- {
+	-- 	"nvimtools/none-ls.nvim",
+	-- 	event = "BufReadPre",
+	-- 	dependencies = {
+	-- 		"mason.nvim",
+	-- 		"nvimtools/none-ls-extras.nvim",
+	-- 	},
+	-- 	config = function()
+	-- 		local nls = require("null-ls")
+	--
+	-- 		nls.setup({
+	-- 			sources = {
+	-- 				require("none-ls.diagnostics.flake8"),
+	-- 				nls.builtins.formatting.black,
+	-- 				nls.builtins.formatting.prettier,
+	-- 				nls.builtins.formatting.stylua,
+	-- 			},
+	-- 		})
+	-- 	end,
+	-- },
+
 	{
-		"nvimtools/none-ls.nvim",
-		event = "BufReadPre",
-		dependencies = {
-			"mason.nvim",
-			"nvimtools/none-ls-extras.nvim",
+		"mfussenegger/nvim-lint",
+		event = {
+			"BufReadPre",
+			"BufNewFile",
 		},
 		config = function()
-			local nls = require("null-ls")
+			local lint = require("lint")
 
-			nls.setup({
-				sources = {
-					require("none-ls.diagnostics.flake8"),
-					nls.builtins.formatting.black,
-					nls.builtins.formatting.prettier,
-					nls.builtins.formatting.stylua,
-				},
+			lint.linters_by_ft = {
+				css = { "stylelint" },
+				javascript = { "eslint_d" },
+				javascriptreact = { "eslint_d" },
+				lua = { "luacheck" },
+				python = { "ruff" },
+				typescript = { "eslint_d" },
+				typescriptreact = { "eslint_d" },
+			}
+
+			local lint_augroup = vim.api.nvim_create_augroup("lint", { clear = true })
+
+			vim.api.nvim_create_autocmd({ "BufEnter", "BufWritePost", "InsertLeave" }, {
+				group = lint_augroup,
+				callback = function()
+					lint.try_lint()
+				end,
 			})
 		end,
 	},
 
 	{
 		"stevearc/conform.nvim",
-		event = { "BufWritePre" },
+		event = { "BufReadPre", "BufNewFile" },
 		cmd = { "ConformInfo" },
 
 		-- This comments provides type hinting with LuaLS
 		---@module "conform"
 		---@type conform.setupOpts
 		opts = {
-			-- Define your formatters
 			formatters_by_ft = {
 				lua = { "stylua" },
 				python = { "isort", "black" },

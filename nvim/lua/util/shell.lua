@@ -1,21 +1,31 @@
+local str = require("util.str")
+
 local M = {}
 
 -- Runs a shell command
--- Returns stdout, err_string
+-- Returns the command output string, and an error string
+-- @return string, string|nil
 function M.cmd(command)
 	local handle = io.popen(command)
 	if not handle then
-		return nil, "Failed to run command"
+		return "", "Failed to run command"
 	end
 
 	local result = handle:read("*a") -- *a reads the entire output
 	handle:close()
 
 	if not result then
-		return nil, "Failed to read command output"
+		return "", "Failed to read command output"
 	end
 
-	return result
+	return str.strip_trailing_newline(result), nil
+end
+
+-- Runs a shell command silently
+-- Returns the command output string, and an error string
+-- @return string, string|nil
+function M.cmd_silent(command)
+	return M.cmd(command .. " 2>/dev/null")
 end
 
 return M
