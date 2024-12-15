@@ -17,7 +17,7 @@ DISABLE_AUTO_UPDATE="true"
 HB=$(brew --prefix)
 
 # Need to set default python before sourcing oh my zsh
-export PATH="$HB/opt/python@3/libexec/bin:/Users/eric.siegel/Library/Python/3.10/bin:$PATH"
+export PATH="$HB/opt/python@3/libexec/bin:$HOME/Library/Python/3.10/bin:$PATH"
 
 # Need to set virtualenv default home before plugins
 export WORKON_HOME="~/.virtualenvs"
@@ -257,8 +257,10 @@ alias ssh_kernvm="ssh -p 2222 eric@127.0.0.1"
 
 # shortcuts
 # note: dropbox can contain spaces so we must wrap it in quotes
+alias dreams="$EDITOR \"$DROPBOX/dreams.md\""
 alias ideas="$EDITOR \"$DROPBOX/ideas.md\""
-# alias notes="$EDITOR \"$DROPBOX/notes/$1.md\""
+alias journal="$EDITOR \"$DROPBOX/journal.md\""
+alias notes="$EDITOR \"$DROPBOX/notes.md\""
 alias questions="$EDITOR \"$DROPBOX/questions.md\""
 alias scratch="$EDITOR \"$DROPBOX/scratch.md\""
 alias todo="$EDITOR \"$DROPBOX/todo.md\""
@@ -398,6 +400,7 @@ recent_changes() {
   git ls-files --others --exclude-standard | awk -v prefix="$path_prefix" '{print prefix $0}'
 }
 
+export CODE_BACKUP_DIR=$HOME/Dropbox/coding/backups
 
 backup_branch() {
   #CODE_BACKUP_DIR must be defined
@@ -541,7 +544,10 @@ network_active() {
   fi
 }
 
-tunnel_csua() {
+tunnel_connection() {
+  msg="$1"
+  host="$2"
+
   is_ethernet=$(network_active "Thunderbolt Ethernet")
   if [[ is_ethernet == 0 ]]; then
     device="Thunderbolt Ethernet"
@@ -552,24 +558,19 @@ tunnel_csua() {
   echo "Turning on proxy for ${device}"
   networksetup -setsocksfirewallproxystate "${device}" on
 
-  echo "Tunnelling to CSUA"
-  ssh -D 8080 -C -q -N esiegel@csua.berkeley.edu
+  echo "$msg"
+  ssh -D 8080 -C -q -N "$host"
 
   echo "Turning off proxy"
   networksetup -setsocksfirewallproxystate "${device}" off
 }
 
+tunnel_csua() {
+  tunnel_connection "Tunnelling to CSUA" "esiegel@csua.berkeley.edu"
+}
+
 tunnel_docean() {
-  echo "Turning on proxy"
-  # networksetup -setsocksfirewallproxystate wi-fi on
-  networksetup -setsocksfirewallproxystate 'Thunderbolt Ethernet' on
-
-  echo "Tunnelling to docean"
-  ssh -D 8080 -C -q -N root@docean
-
-  echo "Turning off proxy"
-  # networksetup -setsocksfirewallproxystate wi-fi off
-  networksetup -setsocksfirewallproxystate 'Thunderbolt Ethernet' off
+  tunnel_connection "Tunnelling to DOCEAN" "root@docean"
 }
 
 ############## DOCKER
@@ -634,7 +635,8 @@ export C_INCLUDE_PATH="$HB/include"
 # export CC="$HB/opt/llvm/bin/clang"
 # export CXX="$HB/opt/llvm/bin/clang++"
 
-############## google cloud
+# source $HOME/Library/Preferences/org.dystroy.broot/launcher/bash/br
 
-source "$HB/share/google-cloud-sdk/path.zsh.inc"
-source "$HB/share/google-cloud-sdk/completion.zsh.inc"
+# JAVA
+# export PATH="$HB/opt/openjdk/bin:$PATH"
+# export CPPFLAGS="-I$HB/opt/openjdk/include"
