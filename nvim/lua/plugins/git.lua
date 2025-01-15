@@ -70,7 +70,7 @@ return {
 			local opts = {}
 
 			if inside_working_tree() then
-				-- opts["base"] = mergebase_main()
+				opts["base"] = mergebase_main()
 			end
 
 			require("gitsigns").setup(opts)
@@ -87,7 +87,12 @@ return {
 			"nvim-tree/nvim-web-devicons",
 		},
 		config = function()
-			require("octo").setup()
+			require("octo").setup({
+				default_to_projects_v2 = false,
+				suppress_missing_scope = {
+					projects_v2 = true,
+				},
+			})
 		end,
 	},
 }

@@ -1,3 +1,5 @@
+local fs = require("util.fs")
+
 -- On Lsp server attach
 ---@param on_attach fun(client, buffer)
 function on_attach(on_attach)
@@ -89,14 +91,32 @@ return {
 		config = function()
 			local lint = require("lint")
 
+			local eslint = lint.linters.eslint
+			eslint.args = {
+				"--format",
+				"json",
+				"--stdin",
+				"--stdin-filename",
+				function()
+					if fs.file_exists("packages/eslint-config/index.js") then
+						return "--config packages/eslint-config/index.js"
+					else
+						return ""
+					end
+				end,
+				function()
+					return vim.api.nvim_buf_get_name(0)
+				end,
+			}
+
 			lint.linters_by_ft = {
 				css = { "stylelint" },
-				javascript = { "eslint_d" },
-				javascriptreact = { "eslint_d" },
+				javascript = { "eslint" },
+				javascriptreact = { "eslint" },
 				lua = { "luacheck" },
 				python = { "ruff" },
-				typescript = { "eslint_d" },
-				typescriptreact = { "eslint_d" },
+				typescript = { "eslint" },
+				typescriptreact = { "eslint" },
 			}
 
 			local lint_augroup = vim.api.nvim_create_augroup("lint", { clear = true })
@@ -104,7 +124,7 @@ return {
 			vim.api.nvim_create_autocmd({ "BufEnter", "BufWritePost", "InsertLeave" }, {
 				group = lint_augroup,
 				callback = function()
-					lint.try_lint()
+					lint.try_lint(nil, { ignore_errors = true })
 				end,
 			})
 		end,

@@ -45,6 +45,9 @@ local servers = {
 	-- python
 	pyright = {},
 	ruff = {},
+
+	-- R lang
+	r_language_server = {},
 }
 
 return servers

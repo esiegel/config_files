@@ -15,11 +15,8 @@ require("lazy").setup({
 	spec = "plugins", -- search lua/plugins/* for plugin config
 	defaults = {
 		lazy = true,
-		version = "*",
-		checker = {
-			notify = false, -- get a notification when new updates are found
-		},
+		version = false,
 	},
 	install = { colorscheme = { "catppuccin-mocha" } },
-	checker = { enabled = true },
+	checker = { enabled = false, notify = false },
 })

@@ -178,7 +178,54 @@ function gh_review_comments() {
   }'
 }
 
-function gh_review_reqs() {
+# echo to stderr
+log() {
+  echo "$@" >&2
+}
+
+# Converts an ISO_8601 data to a string like 8 hours ago
+function time_since() {
+  local input_date="$1"
+
+  if [[ -z "$input_date" ]]; then
+    log "Usage: time_since <ISO_8601_Date>"
+    return 1
+  fi
+
+  # Convert the input date to a Unix timestamp
+  local input_timestamp
+  input_timestamp=$(gdate -d "$input_date" +%s 2>/dev/null)
+
+  # Handle invalid date input
+  if [[ -z "$input_timestamp" ]]; then
+    log "Error: Invalid date format. Please use ISO 8601 format (e.g., 2024-12-19T15:43:46Z)."
+    return 1
+  fi
+
+  # Get the current timestamp
+  local current_timestamp
+  current_timestamp=$(date +%s)
+
+  # Calculate the difference in seconds
+  local difference
+  difference=$((current_timestamp - input_timestamp))
+
+  # Convert the difference to hours and days
+  local hours
+  local days
+  hours=$((difference / 3600))
+  days=$((difference / 86400))
+
+  # Output the result
+  if [[ $hours -lt 24 ]]; then
+    echo "$hours hours ago"
+  else
+    echo "$days days ago"
+  fi
+}
+
+
+function gh_count_review_reqs() {
   local repo="$1"
 
   if [[ $repo ]]; then
@@ -191,6 +238,70 @@ function gh_review_reqs() {
   fi
 
   echo "$data" | jq 'map(.reviewRequests) | flatten | map(.login) | .[]' | sort | uniq -c | sort -nr
+}
+
+function gh_direct_review_reqs() {
+  local username=esiegel
+
+  # will find all prs that im requested on, even those that arent direct requests, as in cloud-dev
+  local gh_output
+  gh_output=$(gh api graphql -f query="
+  {
+    search(query: \"review-requested:${username} is:pr is:open\", type: ISSUE, first: 100) {
+      edges {
+        node {
+          ... on PullRequest {
+            title
+            headRefName
+            createdAt
+            url
+            reviewRequests(first: 10) {
+              nodes {
+                requestedReviewer {
+                  ... on User {
+                    login
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }")
+
+  # Search all the nodes and filters those nodes where i am a direct requestee
+  # Results will be a bunch of elements as such
+  # [
+  #   "PR_kwDOBObU4s6Fzl48",
+  #   "chore(cloupe): support byte data in api requests",
+  #   "jeff/bytearr-readers",
+  #   "2024-12-19T15:43:46Z"
+  # ]
+  local nodes=$(echo "$gh_output" | jq -r ".data.search.edges[].node | select(.reviewRequests.nodes[].requestedReviewer.login == \"${username}\") | [ .title, .headRefName, .createdAt, .url ]")
+
+  # create a tab separated header line and dash line
+  local header=$(echo '[
+    "title",
+    "branch",
+    "createdAt",
+    "url"
+  ]
+  [
+    "----",
+    "----",
+    "----",
+    "----"
+  ]' | jq -r '. | @tsv')
+
+  # modify created at column to use a better time format
+  local modified_nodes=$(echo "$nodes" | jq -r '. | @tsv' | while IFS=$'\t' read -r title branch createdAt url; do
+    human_readable_date=$(time_since "$createdAt")
+    printf "%s\t%s\t%s\t%s\n" "$title" "$branch" "$human_readable_date" "$url"
+  done)
+
+  # combine header and modified nodes, which should already be tab separated and align
+  echo "$header\n$modified_nodes" | column -t -s $'\t'
 }
 
 ################## RUST
