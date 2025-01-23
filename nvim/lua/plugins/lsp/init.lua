@@ -100,6 +100,8 @@ return {
 				function()
 					if fs.file_exists("packages/eslint-config/index.js") then
 						return "--config packages/eslint-config/index.js"
+					elseif fs.file_exists(".eslintrc.js") then
+						return "--config .eslintrc.js"
 					else
 						return ""
 					end
