@@ -194,7 +194,8 @@ function time_since() {
 
   # Convert the input date to a Unix timestamp
   local input_timestamp
-  input_timestamp=$(gdate -d "$input_date" +%s 2>/dev/null)
+  input_timestamp=$(date -j -u -f "%Y-%m-%dT%H:%M:%SZ" "$input_date" "+%s" 2>/dev/null)
+
 
   # Handle invalid date input
   if [[ -z "$input_timestamp" ]]; then
@@ -371,7 +372,6 @@ alias ssh_kernvm="ssh -p 2222 eric@127.0.0.1"
 alias dreams="$EDITOR \"$DROPBOX/dreams.md\""
 alias ideas="$EDITOR \"$DROPBOX/ideas.md\""
 alias journal="$EDITOR \"$DROPBOX/journal.md\""
-alias notes="$EDITOR \"$DROPBOX/notes.md\""
 alias questions="$EDITOR \"$DROPBOX/questions.md\""
 alias scratch="$EDITOR \"$DROPBOX/scratch.md\""
 alias todo="$EDITOR \"$DROPBOX/todo.md\""
@@ -724,7 +724,76 @@ unset __conda_setup
 alias psx='ps xfo pid,etime,pcpu,rss:9,state,cmd'
 alias psa='ps xafo pid,user:18,etime,pcpu,rss:9,state,cmd'
 
+# Converts a JSON object with nestings into a flattened list.
+# Nested paths become a.b.c
 alias jq_struct='jq '"'"'select(objects)|=[.] | map( paths(scalars) ) | map( map(select(numbers)="[]") | join(".")) | unique'"'"
+
+############## 1password cli
+
+op_create_note_from_file() {
+  local filepath="$1"
+  local title="$2"
+  local tags="$3"  # No default value; optional
+
+  if [[ -z "$filepath" || -z "$title" ]]; then
+    echo "Usage: op_create_note_from_file <filepath> <title> [tags]"
+    return 1
+  fi
+
+  if [[ ! -f "$filepath" ]]; then
+    echo "Error: File '$filepath' does not exist."
+    return 1
+  fi
+
+  # Read file content
+  local content
+  content=$(cat "$filepath")
+
+  if [[ -n "$tags" ]]; then
+    op item create \
+      --category='Secure Note' \
+      --title="$title" \
+      --tags "$tags" \
+      notesPlain="$content" > /dev/null
+  else
+    op item create \
+      --category='Secure Note' \
+      --title="$title" \
+      notesPlain="$content" > /dev/null
+  fi
+}
+
+op_create_tmp_note_from_file() {
+  local filepath="$1"
+  local emails="$2"
+
+  if [[ -z "$filepath" || -z "$emails" ]]; then
+    echo "Usage: op_create_tmp_note_from_file <filepath> <emails>"
+    return 1
+  fi
+
+  local title=$(sha256sum "$filepath" | cut -d ' ' -f 1)
+  local tags=temporary
+
+  # See if we have already created the note
+  local found=$(
+    op item list \
+      --categories="Secure Note" \
+      --tags="$tags" \
+      --format=json | \
+    jq --arg title "$title" '[.[] | select(.title == $title)] | length > 0'
+  )
+
+  if [[ "$found" == "true" ]]; then
+    echo "Already created this note" >&2
+    return 0
+  else
+    op_create_note_from_file "$filepath" "$title" "$tags"
+  fi
+
+  # create a temporary link
+  op item share "$title" --expires-in "1h" --emails "$emails"
+}
 
 ############## BUILD
 
