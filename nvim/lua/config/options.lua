@@ -105,3 +105,10 @@ end
 
 -- fix markdown indentation settings
 vim.g.markdown_recommended_style = 0
+
+-- martian
+vim.filetype.add({
+	extension = {
+		mro = "martian",
+	},
+})
