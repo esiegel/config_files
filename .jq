@@ -42,3 +42,14 @@ def schema:
      elif type == "number"  then number(.)
      elif type == "boolean" then boolean(.)
  else empty end;
+
+# Converts human readable byte string like `12.34M` to a number
+#
+# Example for sorting
+#   jq '. | sort_by(.Field | to_bytes)'
+def to_bytes: 
+  capture("^(?<num>[0-9.]+)(?<unit>[KMGT]?)$") as $c | 
+    $c.num | tonumber * (if $c.unit == "K" then 1024 
+                        elif $c.unit == "M" then 1024*1024 
+                        elif $c.unit == "G" then 1024*1024*1024 
+                        else 1 end);
