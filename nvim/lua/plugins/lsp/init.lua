@@ -20,8 +20,8 @@ return {
 		dependencies = {
 			{ "folke/neoconf.nvim", cmd = "Neoconf", config = true },
 			{ "folke/neodev.nvim", config = true },
-			"mason.nvim",
-			{ "williamboman/mason-lspconfig.nvim", config = { automatic_installation = true } },
+			{ "mason-org/mason.nvim", version = "^1.0.0" },
+			{ "mason-org/mason-lspconfig.nvim", version = "^1.0.0", config = { automatic_installation = true } },
 			"hrsh7th/cmp-nvim-lsp",
 		},
 		---@type lspconfig.options
@@ -111,10 +111,23 @@ return {
 				end,
 			}
 
+			-- customize luacheck so that it will use the luacheckrc
+			local luacheck = lint.linters.luacheck
+			luacheck.args = {
+				"--default-config",
+				vim.fn.expand("~/.config/nvim/.luacheckrc"),
+				"--formatter",
+				"plain",
+				"--codes",
+				"--ranges",
+				"-",
+			}
+
 			lint.linters_by_ft = {
 				css = { "stylelint" },
 				javascript = { "eslint" },
 				javascriptreact = { "eslint" },
+				go = { "golangcilint" },
 				lua = { "luacheck" },
 				python = { "ruff" },
 				typescript = { "eslint" },
@@ -179,7 +192,8 @@ return {
 	-- cmdline tools and lsp servers
 	{
 
-		"williamboman/mason.nvim",
+		"mason-org/mason.nvim",
+		version = "^1.0.0",
 		cmd = "Mason",
 		keys = { { "<leader>cm", "<cmd>Mason<cr>", desc = "Mason" } },
 		ensure_installed = {

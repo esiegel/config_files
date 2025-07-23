@@ -105,7 +105,7 @@ cabal-uninstall() {
 
 ################## GOLANG
 
-export PATH="$HB/opt/go@1.22/bin:$PATH"
+export PATH="$HB/opt/go@1.24/bin:$PATH"
 
 export GOPATH=$CODE/go
 export GOBIN=$GOPATH/bin
@@ -141,11 +141,11 @@ go_build_multi() {
 # should be run at the root of the repo
 golangci_from_patch() {
   git diff main > /tmp/golangci.patch
-  golangci-lint run --print-issued-lines=false --out-format=colored-line-number --issues-exit-code=0 --max-issues-per-linter 0 --max-same-issues 0 --new-from-patch=/tmp/golangci.patch
+  golangci-lint run --output.text.print-issued-lines=false --issues-exit-code=0 --max-issues-per-linter=0 --max-same-issues=0 --show-stats=false --new-from-patch=/tmp/golangci.patch
 }
 
 golangci_all() {
-  golangci-lint run --print-issued-lines=false --out-format=colored-line-number --issues-exit-code=0 --max-issues-per-linter 0 --max-same-issues 0 ./...
+  golangci-lint run --output.text.print-issued-lines=false --issues-exit-code=0 --max-issues-per-linter=0 --max-same-issues=0 --show-stats=false ./...
 }
 
 ################## GITHUB
@@ -507,7 +507,8 @@ recent_changes() {
     path_prefix+="../"
   done
 
-  git diff-tree --name-only -r "${start_revision}..${end_revision}" | awk -v prefix="$path_prefix" '{print prefix $0}'
+  # Get a list of all files ignoring deleted ones, and add the path prefix to each path
+  git diff-tree --name-only -r --diff-filter=ACMT "${start_revision}..${end_revision}" | awk -v prefix="$path_prefix" '{print prefix $0}'
   git ls-files --others --exclude-standard | awk -v prefix="$path_prefix" '{print prefix $0}'
 }
 

@@ -40,7 +40,15 @@ local servers = {
 	},
 
 	-- rust
-	rust_analyzer = {},
+	rust_analyzer = {
+		settings = {
+			["rust-analyzer"] = {
+				inlayHints = {
+					enable = false,
+				},
+			},
+		},
+	},
 
 	-- python
 	pyright = {},

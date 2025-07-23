@@ -70,7 +70,9 @@ return {
 			local opts = {}
 
 			if inside_working_tree() then
-				opts["base"] = mergebase_main()
+				-- for some reason this is not being respected
+				local base = mergebase_main()
+				opts["base"] = base
 			end
 
 			require("gitsigns").setup(opts)
