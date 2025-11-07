@@ -12,7 +12,9 @@ local servers = {
 	yamlls = {},
 
 	-- JS/TS
-	ts_ls = {},
+	ts_ls = {
+		single_file_support = true,
+	},
 	eslint = {
 		workingDirectory = { mode = "auto" },
 	},

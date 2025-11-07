@@ -32,7 +32,7 @@ autoload -U compinit && compinit
 
 ############## ZSH CONFIG
 
-export PATH="$PATH:$HB/bin:$HB/sbin:/usr/local/bin:/usr/local/sbin:/usr/bin:/bin:/usr/sbin:/sbin"
+export PATH="$PATH:$HB/bin:$HB/sbin:/usr/local/bin:/usr/local/sbin:/usr/bin:/bin:/usr/sbin:/sbin:/opt/scripts:/opt/bin"
 
 # Direnv hook for loading directory environments
 # Setting an empty log format prevents logging.
@@ -149,15 +149,20 @@ golangci_all() {
 }
 
 ################## GITHUB
+# echo to stderr
+log() {
+  echo "$@" >&2
+}
+
 function gh_review_comments() {
   url=$(gh pr view --json url | jq '.url' | tr -d '"')
   owner=$(echo "$url" | cut -d '/' -f 4)
   name=$(echo "$url" | cut -d '/' -f 5)
   pr=$(echo "$url" | cut -d '/' -f 7)
 
-  echo "OWNER" $owner
-  echo "name" $name
-  echo "pr" $pr
+  log "OWNER" $owner
+  log "name" $name
+  log "pr" $pr
 
   gh api graphql -F owner="$owner" -F name="$name" -F pr="$pr" \
   -f query='
@@ -176,11 +181,6 @@ function gh_review_comments() {
       }
     }
   }'
-}
-
-# echo to stderr
-log() {
-  echo "$@" >&2
 }
 
 # Converts an ISO_8601 data to a string like 8 hours ago
@@ -303,6 +303,12 @@ function gh_direct_review_reqs() {
 
   # combine header and modified nodes, which should already be tab separated and align
   echo "$header\n$modified_nodes" | column -t -s $'\t'
+}
+
+# remove all local branches that no longer have a tracking branch that exists
+function git_prune() {
+  git fetch -p
+  git branch -vv | grep ': gone]' | cut -d' ' -f 3 | xargs git branch -D
 }
 
 ################## RUST
@@ -821,3 +827,4 @@ export C_INCLUDE_PATH="$HB/include"
 # JAVA
 # export PATH="$HB/opt/openjdk/bin:$PATH"
 # export CPPFLAGS="-I$HB/opt/openjdk/include"
+export PATH="/opt/homebrew/opt/libpq/bin:$PATH"

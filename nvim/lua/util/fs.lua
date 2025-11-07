@@ -7,4 +7,8 @@ function M.file_exists(filepath)
 	return stat ~= nil
 end
 
+function M.get_parent_path(filepath)
+	return vim.fn.fnamemodify(filepath, ":h")
+end
+
 return M

@@ -48,15 +48,21 @@ return {
 			})
 
 			-- lspconfig
+			local servers = plugin.servers or require("plugins.lsp.servers")
 			local capabilities =
 				require("cmp_nvim_lsp").default_capabilities(vim.lsp.protocol.make_client_capabilities())
 
-			---@type lspconfig.options
-			local servers = plugin.servers or require("plugins.lsp.servers")
-			for server, opts in pairs(servers) do
-				opts.capabilities = capabilities
-				require("lspconfig")[server].setup(opts)
+			local global_defaults = {
+				capabilities = capabilities,
+			}
+
+			-- Update the configuration for all LSP clients.
+			for name, opts in pairs(servers) do
+				vim.lsp.config(name, vim.tbl_deep_extend("force", {}, global_defaults, opts or {}))
 			end
+
+			-- Auto-starts LSP when a buffer is opened, based on the |lsp-config|
+			vim.lsp.enable(vim.tbl_keys(servers))
 		end,
 	},
 
@@ -102,6 +108,8 @@ return {
 						return "--config packages/eslint-config/index.js"
 					elseif fs.file_exists(".eslintrc.js") then
 						return "--config .eslintrc.js"
+					elseif fs.file_exists(".eslintrc.cjs") then
+						return "--config .eslintrc.cjs"
 					else
 						return ""
 					end
@@ -171,15 +179,31 @@ return {
 			default_format_opts = {
 				lsp_format = "fallback",
 			},
-			-- Set up format-on-save
-			format_on_save = {
-				lsp_fallback = true,
-				timeout_ms = 500,
-			},
+			format_on_save = function(bufnr)
+				-- Disable autoformat on certain filetypes
+				local ignore_filetypes = {}
+				if vim.tbl_contains(ignore_filetypes, vim.bo[bufnr].filetype) then
+					return
+				end
+
+				-- Disable with a global or buffer-local variable
+				if vim.g.disable_autoformat or vim.b[bufnr].disable_autoformat then
+					return
+				end
+
+				-- Disable autoformat for files in a certain path
+				local bufname = vim.api.nvim_buf_get_name(bufnr)
+				if bufname:match("/node_modules/") then
+					return
+				end
+
+				-- ...additional logic...
+				return { timeout_ms = 500, lsp_format = "fallback" }
+			end,
 			-- Customize formatters
 			formatters = {
 				shfmt = {
-					prepend_args = { "-i", "2" },
+					prepend_args = { "-i", "3" },
 				},
 			},
 		},

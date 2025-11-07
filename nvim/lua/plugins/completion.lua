@@ -68,11 +68,12 @@ return {
 				},
 			})
 
-			-- Set up lspconfig.
+			-- Set up lspconfig for rust_analyzer.
 			local capabilities = require("cmp_nvim_lsp").default_capabilities()
-			require("lspconfig")["rust_analyzer"].setup({
+			local global_defaults = {
 				capabilities = capabilities,
-			})
+			}
+			vim.lsp.config("rust_analyzer", vim.tbl_deep_extend("force", {}, global_defaults, {}))
 		end,
 	},
 }

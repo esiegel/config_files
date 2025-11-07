@@ -127,6 +127,7 @@ return {
 		config = function()
 			local telescope = require("telescope")
 			local actions = require("telescope.actions")
+			local layout_actions = require("telescope.actions.layout")
 			-- local layout_strategies = require("telescope.pickers.layout_strategies")
 
 			local options = {
@@ -140,14 +141,16 @@ return {
 					},
 					mappings = {
 						i = {
-							["<C-y>"] = yank_all_entries,
-							["<C-p>"] = yank_preview_lines,
+							["<C-y>"] = { yank_all_entries, type = "action", { opts = { nowait = false } } },
+							["<C-y><C-y>"] = { yank_preview_lines, type = "action", { opts = { nowait = false } } },
+							["<C-p>"] = layout_actions.toggle_preview,
 							["<C-j>"] = actions.move_selection_next,
 							["<C-k>"] = actions.move_selection_previous,
 						},
 						n = {
-							["<C-y>"] = yank_all_entries,
-							["<C-p>"] = yank_preview_lines,
+							["<C-y>"] = { yank_all_entries, type = "action", { opts = { nowait = false } } },
+							["<C-y><C-y>"] = { yank_preview_lines, type = "action", { opts = { nowait = false } } },
+							["<C-p>"] = layout_actions.toggle_preview,
 							["<C-j>"] = actions.move_selection_next,
 							["<C-k>"] = actions.move_selection_previous,
 						},
@@ -178,6 +181,7 @@ return {
 			telescope.setup(options)
 
 			telescope.load_extension("fzf")
+			telescope.load_extension("persisted")
 		end,
 	},
 
