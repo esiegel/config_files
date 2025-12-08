@@ -1,0 +1,126 @@
+# ========== Terminal / shell ==========
+term = "xterm-256color"
+
+# Start directory
+working-directory = "/Users/eric.siegel/code"
+
+# ========== Font ==========
+# iTerm: "InconsolataNFM-Regular 28"
+# Ghostty uses font family names; you may need to tweak the family string
+# (check with: ghostty +list-fonts)
+# if this fails, try "Inconsolata Nerd Font Mono" or similar
+font-family = "Inconsolata Nerd Font Mono"
+font-size   = 26
+
+# Bold and italic were enabled in iTerm; Ghostty allows them by default.
+# If you ever want to disable synthetic bold/italic:
+# font-synthetic-style = no-bold,no-italic
+
+# ========== Window size ==========
+# iTerm: 80x25
+window-width  = 80
+window-height = 25
+
+# Background fully opaque (iTerm Transparency = 0)
+background-opacity = 1.0
+
+# ========== Colors ==========
+
+# iTerm Foreground / Background
+# Foreground Color: (0.7333, 0.7333, 0.7333) ≈ #BBBBBB
+# Background Color: (0, 0, 0) = #000000
+foreground = #BBBBBB
+background = #000000
+
+# Cursor colors
+# Cursor Color: same as foreground
+# Cursor Text Color: white
+cursor-color = #BBBBBB
+cursor-text  = #FFFFFF
+
+# Cursor style / blinking
+# iTerm: Blinking Cursor = false
+cursor-style       = block
+cursor-style-blink = false
+
+# Bold color (iTerm "Bold Color" = white)
+bold-color = #FFFFFF
+
+# Selection colors
+# Selection Color: (0.7098, 0.8353, 1.0) ≈ #B5D5FF
+# Selected Text Color: (0, 0, 0) = #000000
+selection-background = #B5D5FF
+selection-foreground = #000000
+
+# iTerm link color has no direct equivalent in Ghostty.
+# You can control URL behavior with "link", "link-url", "link-previews" if desired. :contentReference[oaicite:1]{index=1}
+
+# ========== ANSI color palette (0–15) ==========
+# Converted directly from your iTerm RGB values.
+
+# Normal colors
+#
+# black
+palette = 0=#000000
+# red
+palette = 1=#BB0000
+# green
+palette = 2=#00BB00
+# yellow
+palette = 3=#BBBB00
+# blue
+palette = 4=#0000BB
+# magenta
+palette = 5=#BB00BB
+# cyan
+palette = 6=#00BBBB
+# white / light gray
+palette = 7=#BBBBBB
+
+# Bright colors
+#
+# bright black / gray
+palette = 8=#555555   
+# bright red
+palette = 9=#FF5555
+# bright green
+palette = 10=#55FF55
+# bright yellow
+palette = 11=#FFFF55
+# bright blue
+palette = 12=#5555FF
+# bright magenta
+palette = 13=#FF55FF
+# bright cyan
+palette = 14=#55FFFF
+# bright white
+palette = 15=#FFFFFF
+
+# ========== Scrollback ==========
+# iTerm: 10,000 lines (not unlimited)
+# Ghostty uses a byte limit, not a line count. :contentReference[oaicite:2]{index=2}
+# This gives you a reasonably large history without going "unlimited".
+# ~10 MiB
+scrollback-limit = 10485760
+
+# ========== Mouse / behavior ==========
+# iTerm had Mouse Reporting = true; Ghostty does this by default,
+# and also supports some extra niceties:
+mouse-hide-while-typing = true
+
+# iTerm: "Silence Bell" = true → disable audio bell
+bell-features = no-audio
+
+# Close window when shell exits (iTerm: Close Sessions On End = true)
+quit-after-last-window-closed = true
+
+# ========== macOS-specific tweaks ==========
+# iTerm had both Option keys in "normal" mode (not sending Esc+something).
+# Ghostty's equivalent is whether Option behaves as Alt.
+# Set this to false to keep Option as a regular macOS modifier (similar to iTerm default).
+macos-option-as-alt = false
+
+# Title, purely cosmetic
+
+# Use non-native macOS fullscreen, hide the menu bar
+macos-non-native-fullscreen = false

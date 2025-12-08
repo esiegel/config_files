@@ -26,9 +26,16 @@ export VIRTUALENVWRAPPER_PYTHON="$HB/bin/python3"
 # Custom plugins may be added to ~/.oh-my-zsh/custom/plugins/
 plugins=(git-extras pip virtualenvwrapper golang)
 
+# Smarter completion initialization - only recalculate completion every so often
+autoload -Uz compinit
+if [ "$(date +'%j')" != "$(stat -f '%Sm' -t '%j' ~/.zcompdump 2>/dev/null)" ]; then
+    compinit
+else
+    compinit -C
+fi
+
 # oh-my-zsh entry
 source $ZSH/oh-my-zsh.sh
-autoload -U compinit && compinit
 
 ############## ZSH CONFIG
 
@@ -828,3 +835,6 @@ export C_INCLUDE_PATH="$HB/include"
 # export PATH="$HB/opt/openjdk/bin:$PATH"
 # export CPPFLAGS="-I$HB/opt/openjdk/include"
 export PATH="/opt/homebrew/opt/libpq/bin:$PATH"
+
+# Leave at the end and uncomment for profiling
+# zprof
