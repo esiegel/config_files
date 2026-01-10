@@ -75,3 +75,5 @@
 	fsckobjects = true
 [web]
 	browser = open
+[credential]
+	helper = osxkeychain
