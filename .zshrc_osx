@@ -707,10 +707,14 @@ docker_bash_latest() {
 ############## fnm
 
 # nvm replacement for managing node envs
-eval "$(fnm env --use-on-cd)"
+if command -v fnm >/dev/null 2>&1; then
+  eval "$(fnm env --use-on-cd)"
+fi
 
 ############## broot home
-source "$HOME/.config/broot/launcher/bash/br"
+if command -v br >/dev/null 2>&1; then
+  source "$HOME/.config/broot/launcher/bash/br"
+fi
 
 export PATH="$HOME/.yarn/bin:$HOME/.config/yarn/global/node_modules/.bin:$PATH"
 
