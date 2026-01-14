@@ -58,6 +58,9 @@ local servers = {
 
 	-- R lang
 	r_language_server = {},
+
+	-- terraform infranstructure lang
+	terraformls = {},
 }
 
 return servers

@@ -840,5 +840,20 @@ export C_INCLUDE_PATH="$HB/include"
 # export CPPFLAGS="-I$HB/opt/openjdk/include"
 export PATH="/opt/homebrew/opt/libpq/bin:$PATH"
 
+########### MISC
+
+# Get url query params
+url_query_params() {
+  pbpaste | python3 -c "
+import sys
+import json
+from urllib.parse import urlparse, parse_qs, unquote
+
+url = sys.stdin.read().strip()
+params = parse_qs(urlparse(unquote(url)).query)
+print(json.dumps(params))
+  "
+}
+
 # Leave at the end and uncomment for profiling
 # zprof

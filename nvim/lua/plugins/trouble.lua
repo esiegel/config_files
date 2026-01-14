@@ -1,3 +1,5 @@
+local strutil = require("util.str")
+
 return {
 	"folke/trouble.nvim",
 	opts = {
@@ -44,6 +46,34 @@ return {
 		trouble.setup({
 			auto_preview = false, -- automatically open preview when on an item
 			auto_refresh = false, -- auto refresh when open
+
+			keys = {
+				f = { -- custom action that filters based on query
+					action = function(view)
+						local query = vim.fn.input("Filename filter: ")
+						if query == nil or query == "" then
+							view:filter({}, { id = "filename_query", del = true })
+							return
+						end
+
+						view:filter({
+							function(item)
+								local filename = item.filename
+								if not filename or filename == "" then
+									return false
+								end
+
+								return strutil.fzf_match(filename, query)
+							end,
+						}, {
+							id = "filename_query",
+							template = "{hl:Title}Filter:{hl} filename *{query}",
+							data = { query = query },
+						})
+					end,
+					desc = "Filter By Filename Query",
+				},
+			},
 		})
 	end,
 }
