@@ -37,6 +37,10 @@ local servers = {
 				completion = {
 					callSnippet = "Replace",
 				},
+				hint = {
+					enable = true,
+					semicolon = "Disable",
+				},
 			},
 		},
 	},
@@ -46,7 +50,10 @@ local servers = {
 		settings = {
 			["rust-analyzer"] = {
 				inlayHints = {
-					enable = false,
+					typeHints = { enable = false },
+					parameterHints = { enable = false },
+					chainingHints = { enable = false },
+					closingBraceHints = { enable = false },
 				},
 			},
 		},

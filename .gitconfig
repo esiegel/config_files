@@ -2,10 +2,17 @@
 	name = Eric Siegel
 	email = siegel.eric@gmail.com
 [core]
-	editor = /usr/local/bin/vim
+	editor = /opt/homebrew/bin/nvim
+	pager = bat
 	excludesfile = ~/.gitignore
 [alias]
-	ancestor = merge-base MASTER HEAD
+  mainbranch= "!f() { \
+    ref=$(git symbolic-ref refs/remotes/origin/HEAD | sed 's@^refs/remotes/origin/@@'); \
+    echo $ref ; \
+  }; f"
+  ancestor= "!f() { \
+    git merge-base $(git mainbranch) HEAD ; \
+  }; f"
   br = for-each-ref --sort=committerdate refs/heads/ --format='%(HEAD) %(color:yellow)%(refname:short)%(color:reset) - %(color:red)%(objectname:short)%(color:reset) - %(contents:subject) - %(authorname) (%(color:green)%(committerdate:relative)%(color:reset))'
 	ci = commit
 	co = checkout

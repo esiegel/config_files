@@ -63,6 +63,8 @@ return {
 
 			-- Auto-starts LSP when a buffer is opened, based on the |lsp-config|
 			vim.lsp.enable(vim.tbl_keys(servers))
+
+			require("util.ts_code_actions").setup()
 		end,
 	},
 
