@@ -855,5 +855,12 @@ print(json.dumps(params))
   "
 }
 
+############## KITTY
+
+# Tab completion for kitty and kitten commands (e.g. kitty @ <tab>)
+if [[ -n "$KITTY_PID" ]]; then
+  source <(kitty + complete setup zsh)
+fi
+
 # Leave at the end and uncomment for profiling
 # zprof

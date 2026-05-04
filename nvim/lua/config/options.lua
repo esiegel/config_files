@@ -2,6 +2,9 @@
 local system_info = require("config.system_info")
 system_info.make_tmp_dir()
 
+-- exposes the pager as a regular buffer + window amongst other things
+require("vim._core.ui2").enable()
+
 vim.g.mapleader = ","
 vim.g.maplocalleader = ","
 

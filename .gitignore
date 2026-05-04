@@ -34,3 +34,6 @@ Temporary Items
 
 # intellij
 .idea
+
+# .claude code
+.claude/

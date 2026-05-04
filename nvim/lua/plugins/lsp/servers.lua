@@ -38,7 +38,7 @@ local servers = {
 					callSnippet = "Replace",
 				},
 				hint = {
-					enable = true,
+					enable = false,
 					semicolon = "Disable",
 				},
 			},
@@ -54,6 +54,19 @@ local servers = {
 					parameterHints = { enable = false },
 					chainingHints = { enable = false },
 					closingBraceHints = { enable = false },
+				},
+				cargo = { features = "all" },
+				checkOnSave = true,
+				check = { command = "clippy" },
+				imports = {
+					group = {
+						enable = false,
+					},
+				},
+				completion = {
+					postfix = {
+						enable = false,
+					},
 				},
 			},
 		},
