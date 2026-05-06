@@ -6,7 +6,18 @@ local servers = {
 	bashls = {},
 	clangd = {},
 	cssls = {},
-	gopls = {},
+	gopls = {
+		-- Prevent gopls from attaching to non-file buffers (e.g. fugitive://),
+		-- which gopls rejects. Not calling on_dir aborts the client start.
+		root_dir = function(bufnr, on_dir)
+			local uri = vim.uri_from_bufnr(bufnr)
+			if not uri:match("^file://") then
+				return
+			end
+			local root = vim.fs.root(bufnr, { "go.work", "go.mod", ".git" })
+			on_dir(root or vim.fn.fnamemodify(vim.api.nvim_buf_get_name(bufnr), ":h"))
+		end,
+	},
 	html = {},
 	jsonls = {},
 	yamlls = {},

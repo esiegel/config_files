@@ -1,3 +1,5 @@
+local fs = require("util.fs")
+
 return {
 	{
 		"mfussenegger/nvim-lint",
@@ -43,6 +45,10 @@ return {
 			}
 
 			local golangcilint = lint.linters.golangcilint
+			golangcilint.cwd = function()
+				local filedir = fs.get_parent_path(vim.api.nvim_buf_get_name(0))
+				return fs.find_upward("go.mod", filedir) or filedir
+			end
 			golangcilint.args = {
 				"run",
 				"--output.json.path=stdout",
@@ -57,19 +63,12 @@ return {
 				"--issues-exit-code=0",
 				"--show-stats=false",
 				"--path-mode=abs",
-
 				function()
 					local filepath = vim.api.nvim_buf_get_name(0)
-					local filedir = vim.fn.fnamemodify(filepath, ":h")
-
-					-- Check for go.mod in the current directory or parents
-					local found = vim.fs.find({ "go.mod", ".git" }, { path = filedir, upward = true })[1]
-
-					if found and found:match("go.mod$") then
-						-- Run on the DIRECTORY (Package Mode).
-						return vim.fn.fnamemodify(filepath, ":h")
+					local filedir = fs.get_parent_path(filepath)
+					if fs.find_upward("go.mod", filedir) then
+						return filedir
 					else
-						-- CASE B: Standalone file (no go.mod): Run on the FILE (File Mode).
 						return vim.fn.fnamemodify(filepath, ":p")
 					end
 				end,
