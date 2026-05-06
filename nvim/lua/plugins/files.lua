@@ -44,32 +44,20 @@ return {
 		end,
 	},
 
-	--calltree--
+	-- call hierarchy
 	{
-		"ldelossa/litee.nvim",
-		event = "VeryLazy",
-		opts = {
-			notify = { enabled = false },
-			panel = {
-				orientation = "bottom",
-				panel_size = 10,
-			},
+		"nvimdev/lspsaga.nvim",
+		dependencies = { "nvim-treesitter/nvim-treesitter", "nvim-tree/nvim-web-devicons" },
+		event = "LspAttach",
+		keys = {
+			{ "<leader>ci", "<cmd>Lspsaga incoming_calls<cr>", desc = "Incoming Calls" },
+			{ "<leader>cO", "<cmd>Lspsaga outgoing_calls<cr>", desc = "Outgoing Calls" },
 		},
-		config = function(_, opts)
-			require("litee.lib").setup(opts)
-		end,
-	},
-
-	{
-		"ldelossa/litee-calltree.nvim",
-		dependencies = "ldelossa/litee.nvim",
-		event = "VeryLazy",
 		opts = {
-			on_open = "panel",
-			map_resize_keys = false,
+			-- Disable lspsaga features already covered by other plugins
+			lightbulb = { enable = false },
+			beacon = { enable = false },
+			symbol_in_winbar = { enable = false },
 		},
-		config = function(_, opts)
-			require("litee.calltree").setup(opts)
-		end,
 	},
 }
