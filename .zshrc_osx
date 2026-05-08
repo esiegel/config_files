@@ -497,6 +497,73 @@ search_and_replace() {
   ag "$pattern" -l "$@" | xargs perl -pi -e "s/$pattern/$replacement/g"
 }
 
+stats_col() {
+  # Usage: stats_col [-c COL] [-o "op1 op2 ..."] [--tab|--csv] [FILE]
+  # Runs datamash stats on a single column from stdin or a file.
+  #   -c, --col  Column number to operate on (default: 1)
+  #   -o, --ops  Space-separated datamash operations (default: "mean median perc:90 perc:95 min max")
+  #              Use perc:N for percentiles, e.g. perc:90 perc:95
+  #   --tab      Use tab as delimiter (default: whitespace)
+  #   --csv      Use comma as delimiter
+  #   FILE       Optional input file (default: stdin)
+  # Examples:
+  #   cat data.txt | stats_col
+  #   stats_col data.txt
+  #   stats_col -c 2 -o "mean perc:90 perc:95" data.txt
+  #   stats_col --tab data.tsv
+  #   stats_col --csv data.csv
+
+  local col=1
+  local datamash_opts="-W"
+  local ops="mean median perc:90 perc:95 min max"
+  local file=""
+
+  while [[ $# -gt 0 ]]; do
+    case $1 in
+      -c|--col) col=$2; shift 2 ;;
+      -o|--ops) ops=$2; shift 2 ;;
+      --tab) datamash_opts="-t $'\t'"; shift ;;
+      --csv) datamash_opts="-t ,"; shift ;;
+      -*) shift ;;
+      *) file=$1; shift ;;
+    esac
+  done
+
+  # Get opts into an array
+  local op_array
+  read -rA op_array <<< "$ops"
+
+  local datamash_args=""
+  for op in "${op_array[@]}"; do
+    datamash_args="$datamash_args $op $col"
+  done
+
+  echo datamash $datamash_opts $datamash_args
+
+  local result
+  if [[ -n "$file" ]]; then
+    result=$(datamash $datamash_opts $datamash_args < "$file")
+  else
+    result=$(datamash $datamash_opts $datamash_args)
+  fi
+
+  # return early
+  [[ $? -ne 0 ]] && return 1
+
+  # split result values by tab into an array
+  local val_array
+  read -rA val_array <<< "$result"
+
+  # print as aligned table
+  ( echo "${op_array[*]}" ; echo "${val_array[*]}" ) | column -t
+}
+
+# Uniques lines without needing to sort first.  First match wins
+uniq_ordered() {
+  # If no file is provided, awk reads from stdin automatically
+  gawk '!seen[$0]++' "$@"
+}
+
 ############## GIT HELPERS
 
 # modified files
