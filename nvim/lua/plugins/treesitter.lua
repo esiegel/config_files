@@ -4,6 +4,9 @@ return {
 		branch = "main",
 		lazy = false,
 		build = ":TSUpdate",
+		dependencies = {
+			"nvim-treesitter/nvim-treesitter-textobjects",
+		},
 		init = function()
 			-- The main branch stores queries under runtime/queries/ rather than queries/ at the
 			-- plugin root. Lazy only adds the plugin root to rtp, so without this prepend Neovim

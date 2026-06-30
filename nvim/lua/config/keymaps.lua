@@ -43,6 +43,43 @@ map("c", "<Esc><C-F>", "<S-Right>") --   forward   one         word
 map("t", "<C-j>", "<C-\\><C-n>")
 map("n", "<leader>z", terminal.toggle_term)
 
+-- terminal buffer picker: open telescope buffer list and insert selected buffer's filepath
+map("t", "<C-x><C-b>", function()
+	local term_buf = vim.api.nvim_get_current_buf()
+	local term_chan = vim.b[term_buf].terminal_job_id
+	if not term_chan then
+		return
+	end
+
+	vim.cmd("stopinsert")
+
+	require("telescope.builtin").buffers({
+		attach_mappings = function(prompt_bufnr, _)
+			local actions = require("telescope.actions")
+			local action_state = require("telescope.actions.state")
+
+			actions.select_default:replace(function()
+				local selection = action_state.get_selected_entry()
+				actions.close(prompt_bufnr)
+
+				if selection then
+					local filepath = vim.api.nvim_buf_get_name(selection.bufnr)
+					if filepath ~= "" then
+						vim.api.nvim_chan_send(term_chan, filepath)
+					end
+				end
+
+				-- reenter insert mode, but schedule this to give telescope time to close
+				vim.schedule(function()
+					vim.cmd("startinsert")
+				end)
+			end)
+
+			return true
+		end,
+	})
+end)
+
 -- change to next quickfix error
 map("n", "<leader>h", function()
 	vim.cmd("cprev")

@@ -929,5 +929,11 @@ if [[ -n "$KITTY_PID" ]]; then
   source <(kitty + complete setup zsh)
 fi
 
+############## Claude
+
+export ANTHROPIC_MODEL='sonnet'
+
+############## END
+#
 # Leave at the end and uncomment for profiling
 # zprof
