@@ -180,7 +180,7 @@ function gh_review_comments() {
           nodes {
             comments(first: 100) {
               nodes {
-                author{login} body createdAt
+                author{login} body createdAt path line
               }
             }
           }
@@ -464,6 +464,10 @@ arcpatch_via_patch() {
 
 # include scripts
 export PATH=$PATH:$CODE/scripts
+
+# Add scripts from local bin
+export PATH="$HOME/.local/bin:$PATH"
+
 
 exit_if_failure() {
   exit_code=$?

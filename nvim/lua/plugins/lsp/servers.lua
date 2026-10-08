@@ -66,7 +66,9 @@ local servers = {
 					chainingHints = { enable = false },
 					closingBraceHints = { enable = false },
 				},
-				cargo = { features = "all" },
+				cargo = {
+					allFeatures = true,
+				},
 				checkOnSave = true,
 				check = { command = "clippy" },
 				imports = {

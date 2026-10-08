@@ -41,6 +41,7 @@ return {
 					{ name = "buffer" },
 					{ name = "path" },
 					{ name = "emoji" },
+					{ name = "filemention" },
 				}),
 
 				formatting = {

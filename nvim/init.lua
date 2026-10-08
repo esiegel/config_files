@@ -12,3 +12,6 @@ require("config.keymaps")
 
 -- abbreviations
 require("config.abbreviations")
+
+-- TS hierarchy
+require("config.ts-hierarchy")

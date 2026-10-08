@@ -80,6 +80,50 @@ map("t", "<C-x><C-b>", function()
 	})
 end)
 
+-- terminal buffer picker: open telescope buffer list and insert files filepath
+vim.keymap.set("t", "<C-x><C-f>", function()
+	local term_buf = vim.api.nvim_get_current_buf()
+	local term_chan = vim.b[term_buf].terminal_job_id
+	if not term_chan then
+		return
+	end
+
+	-- Exit terminal insert mode so Telescope can capture input cleanly
+	vim.cmd("stopinsert")
+
+	-- Use 'find_files' (standard Telescope builtin)
+	require("telescope.builtin").find_files({
+		attach_mappings = function(prompt_bufnr, _)
+			local actions = require("telescope.actions")
+			local action_state = require("telescope.actions.state")
+
+			actions.select_default:replace(function()
+				local selection = action_state.get_selected_entry()
+				actions.close(prompt_bufnr)
+
+				if selection and selection.value then
+					-- selection.value contains the relative or absolute path string
+					local filepath = selection.value
+
+					-- Optional: Turn relative paths into absolute paths if needed:
+					-- filepath = vim.fn.fnamemodify(filepath, ":p")
+
+					-- Send the path to the terminal channel
+					-- Added a space " " at the end so you can keep typing arguments
+					vim.api.nvim_chan_send(term_chan, filepath .. " ")
+				end
+
+				-- Re-enter terminal insert mode safely
+				vim.schedule(function()
+					vim.cmd("startinsert")
+				end)
+			end)
+
+			return true
+		end,
+	})
+end)
+
 -- change to next quickfix error
 map("n", "<leader>h", function()
 	vim.cmd("cprev")
